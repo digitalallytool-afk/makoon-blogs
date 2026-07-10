@@ -40,13 +40,15 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
           security: loose
-          timeout: 90000
-          server-dir: ./  # Since the new FTP user is restricted to /home/makoon/laravel-blog
+          timeout: 600000  # Set timeout to 10 minutes (600,000 ms)
+          server-dir: ./
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
             **/tests/**
             **/storage/framework/cache/data/**
+            **/public/uploads/**
+            public/uploads/**
             wordpress_export.xml
             stories_export.xml
