@@ -1,4 +1,4 @@
-name: Deploy to GoDaddy
+name: Deploy to GoDaddy (FTP)
 
 on:
   push:
@@ -32,35 +32,18 @@ jobs:
           npm ci
           npm run build
 
-      - name: Deploy files via SSH/Rsync
-        uses: easingthemes/ssh-deploy@main
+      - name: 📂 Deploy files via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rlgoDzvO --delete"
-          SOURCE: "/"
-          REMOTE_HOST: ${{ secrets.SSH_HOST }}
-          REMOTE_USER: ${{ secrets.SSH_USERNAME }}
-          REMOTE_PORT: ${{ secrets.SSH_PORT }}
-          TARGET: "/home/makoon/laravel-blog"
-          EXCLUDE: "/node_modules/, /tests/, /storage/framework/cache/data/, .git/, .github/, /wordpress_export.xml, /stories_export.xml"
-
-      - name: Run post-deployment Laravel commands
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            cd /home/makoon/laravel-blog
-            # Run database migrations
-            php artisan migrate --force
-            # Cache configurations and routes for maximum performance
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            # Re-generate sitemap.xml
-            php artisan tinker --execute "app(App\Services\SitemapService::class)->generate();"
-            # Create/Update the symbolic link from public to public_html/blogs
-            ln -sfn /home/makoon/laravel-blog/public /home/makoon/public_html/blogs
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /laravel-blog/  # This uploads to /home/makoon/laravel-blog
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/tests/**
+            **/storage/framework/cache/data/**
+            wordpress_export.xml
+            stories_export.xml
