@@ -38,7 +38,10 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /laravel-blog/  # This uploads to /home/makoon/laravel-blog
+          port: 21
+          security: loose
+          timeout: 90000
+          server-dir: ./  # Since the new FTP user is restricted to /home/makoon/laravel-blog
           exclude: |
             **/.git*
             **/.git*/**
