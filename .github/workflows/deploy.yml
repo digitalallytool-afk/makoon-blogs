@@ -1,0 +1,66 @@
+name: Deploy to GoDaddy
+
+on:
+  push:
+    branches:
+      - main  # Change this to 'master' if your default branch is named master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, mysql, zip
+
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install NPM Dependencies & Build Assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy files via SSH/Rsync
+        uses: easingthemes/ssh-deploy@main
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-rlgoDzvO --delete"
+          SOURCE: "/"
+          REMOTE_HOST: ${{ secrets.SSH_HOST }}
+          REMOTE_USER: ${{ secrets.SSH_USERNAME }}
+          REMOTE_PORT: ${{ secrets.SSH_PORT }}
+          TARGET: "/home/makoon/laravel-blog"
+          EXCLUDE: "/node_modules/, /tests/, /storage/framework/cache/data/, .git/, .github/, /wordpress_export.xml, /stories_export.xml"
+
+      - name: Run post-deployment Laravel commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /home/makoon/laravel-blog
+            # Run database migrations
+            php artisan migrate --force
+            # Cache configurations and routes for maximum performance
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            # Re-generate sitemap.xml
+            php artisan tinker --execute "app(App\Services\SitemapService::class)->generate();"
+            # Create/Update the symbolic link from public to public_html/blogs
+            ln -sfn /home/makoon/laravel-blog/public /home/makoon/public_html/blogs

@@ -1,0 +1,173 @@
+/*
+ * Makoon Panel — Eye-Comfort Color Overrides
+ * Layout, spacing, fonts — ALL unchanged from original Rocker template.
+ * Only color values are adjusted for eye comfort.
+ */
+
+/* ── Page background: cold #f7f7ff → warm neutral ──── */
+body {
+    background: #f3f4f0 !important;
+}
+
+/* ── Sidebar: pure white → very slightly warm ───────── */
+.sidebar-wrapper {
+    background: #fdfcfa !important;
+    box-shadow: 0 2px 6px 0 rgb(200 198 190 / 55%), 0 2px 6px 0 rgb(190 188 175 / 40%) !important;
+}
+
+.sidebar-header {
+    background: #fdfcfa !important;
+}
+
+/* ── Topbar: pure white → matches sidebar warmth ─────── */
+.topbar {
+    background: #fdfcfa !important;
+    box-shadow: 0 2px 6px 0 rgb(200 198 190 / 45%), 0 0px 6px 0 rgb(190 188 175 / 35%) !important;
+}
+
+/* ── Cards: pure white → faintly warm white ──────────── */
+.card {
+    background: #fefdfa !important;
+}
+
+/* ── Primary accent: harsh #008cff → comfortable blue ── */
+.btn-primary,
+.btn-primary:focus {
+    background-color: #3b82c4 !important;
+    border-color: #3b82c4 !important;
+}
+.btn-primary:hover {
+    background-color: #2d70b0 !important;
+    border-color: #2d70b0 !important;
+}
+
+.logo-text,
+.toggle-icon {
+    color: #3b82c4 !important;
+}
+
+/* Primary text links */
+a.text-primary,
+.text-primary {
+    color: #3b82c4 !important;
+}
+
+/* Light primary backgrounds (badges etc.) */
+.bg-light-primary {
+    background-color: rgba(59, 130, 196, 0.12) !important;
+}
+
+/* Page content area */
+.page-content {
+    background: transparent !important;
+}
+
+/* ── Table header: harsh white → soft warm grey ──────── */
+.table-light,
+thead.table-light {
+    background-color: #efefea !important;
+}
+.table-light th,
+.table-light td {
+    background-color: #efefea !important;
+}
+
+/* ── Form controls: white → faintly warm input ───────── */
+.form-control,
+.form-select {
+    background-color: #f9f8f5 !important;
+}
+.form-control:focus,
+.form-select:focus {
+    background-color: #ffffff !important;
+    border-color: #3b82c4 !important;
+    box-shadow: 0 0 0 .25rem rgba(59, 130, 196, 0.18) !important;
+}
+
+/* ── Breadcrumb bg ───────────────────────────────────── */
+.page-breadcrumb {
+    background: transparent !important;
+}
+
+/* ── Sidebar Toggled (minimized) state: shrink logo ──── */
+.brand-logo-img {
+    transition: width 0.2s ease-out, max-height 0.2s ease-out;
+}
+
+.wrapper.toggled:not(.sidebar-hovered) .sidebar-wrapper .sidebar-header .brand-logo-img {
+    width: 40px !important;
+    max-height: 40px !important;
+}
+
+/* ── Premium Pagination styling ─────────────────────── */
+.pagination {
+    display: flex !important;
+    gap: 6px !important;
+    margin-bottom: 0 !important;
+    padding-left: 0 !important;
+}
+
+.pagination .page-item {
+    margin: 0 !important;
+}
+
+.pagination .page-item .page-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 6px !important;
+    border: 1px solid rgba(17, 17, 17, 0.12) !important;
+    color: #111 !important;
+    padding: 6px 12px !important;
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
+    background: #fff !important;
+    min-width: 32px !important;
+    height: 32px !important;
+    line-height: 1 !important;
+    transition: all 150ms ease !important;
+}
+
+.pagination .page-item.active .page-link {
+    background: #111 !important;
+    border-color: #111 !important;
+    color: #fff !important;
+    pointer-events: none;
+}
+
+.pagination .page-item.disabled .page-link {
+    background: rgba(17, 17, 17, 0.03) !important;
+    color: rgba(17, 17, 17, 0.3) !important;
+    border-color: rgba(17, 17, 17, 0.08) !important;
+}
+
+.pagination .page-item:hover:not(.active):not(.disabled) .page-link {
+    background: rgba(17, 17, 17, 0.05) !important;
+    border-color: rgba(17, 17, 17, 0.2) !important;
+    color: #111 !important;
+}
+
+/* Ensure full width and styling for Bootstrap pagination nav container */
+nav.d-flex.justify-items-between.justify-content-between {
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 1.5rem !important;
+}
+
+nav.d-flex.justify-items-between.justify-content-between p.text-muted {
+    margin-bottom: 0 !important;
+    font-size: 0.86rem !important;
+    color: #555 !important;
+}
+
+nav.d-flex.justify-items-between.justify-content-between .d-none.flex-fill.d-sm-flex {
+    display: flex !important;
+    width: 100% !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 1.5rem !important;
+    flex-wrap: wrap !important;
+}
