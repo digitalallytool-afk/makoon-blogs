@@ -21,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (config('app.url') && !str_contains(config('app.url'), 'localhost')) {
+            \Illuminate\Support\Facades\URL::forceRootUrl(config('app.url'));
+        }
+
         // Intercept all gate checks to authenticate via roles and dynamic direct permissions
         Gate::before(function (User $user, string $ability) {
             if ($user->hasRole('super-admin')) {
