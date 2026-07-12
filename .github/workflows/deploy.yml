@@ -53,12 +53,5 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /home/makoon/laravel-blog
-            # Cache configurations and routes for maximum performance
-            /usr/local/bin/ea-php82 artisan config:cache
-            /usr/local/bin/ea-php82 artisan route:cache
-            /usr/local/bin/ea-php82 artisan view:cache
-            # Re-generate sitemap.xml
-            /usr/local/bin/ea-php82 artisan tinker --execute="app(App\Services\SitemapService::class)->generate()"
-            # Create/Update the symbolic link from public to public_html/blogs
-            ln -sfn /home/makoon/laravel-blog/public /home/makoon/public_html/blogs
+            chmod +x /home/makoon/laravel-blog/deploy.sh
+            /home/makoon/laravel-blog/deploy.sh
