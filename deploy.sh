@@ -21,6 +21,7 @@ npm run build
 
 # सिमलिंक बनाएं ( सभी पाथ के लिए )
 ln -sfn /home/makoon/laravel-blog/public /home/makoon/public_html/blogs
+ln -sfn /home/makoon/laravel-blog/public /home/makoon/public_html/all-blogs
 ln -sfn /home/makoon/laravel-blog/public /home/makoon/public_html/stories
 ln -sfn /home/makoon/laravel-blog/public /home/makoon/public_html/printables
 ln -sfn /home/makoon/laravel-blog/public /home/makoon/public_html/sessions
