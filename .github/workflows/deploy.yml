@@ -20,7 +20,7 @@ jobs:
           extensions: mbstring, xml, ctype, iconv, mysql, zip
 
       - name: Install Composer Dependencies
-        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --ignore-platform-reqs
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
