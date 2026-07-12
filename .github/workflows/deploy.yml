@@ -1,4 +1,4 @@
-name: Deploy to GoDaddy (FTP)
+name: Deploy to GoDaddy
 
 on:
   push:
@@ -32,23 +32,33 @@ jobs:
           npm ci
           npm run build
 
-      - name: 📂 Deploy files via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Deploy files via SSH/Rsync
+        uses: easingthemes/ssh-deploy@main
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
-          security: loose
-          timeout: 600000  # Set timeout to 10 minutes (600,000 ms)
-          server-dir: ./
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/tests/**
-            **/storage/framework/cache/data/**
-            **/public/uploads/**
-            public/uploads/**
-            wordpress_export.xml
-            stories_export.xml
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-rlgoDzvO --delete"
+          SOURCE: "/"
+          REMOTE_HOST: ${{ secrets.SSH_HOST }}
+          REMOTE_USER: ${{ secrets.SSH_USERNAME }}
+          REMOTE_PORT: ${{ secrets.SSH_PORT }}
+          TARGET: "/home/makoon/laravel-blog"
+          EXCLUDE: "/node_modules/, /tests/, /storage/framework/cache/data/, .git/, .github/, /public/uploads/, public/uploads/, /wordpress_export.xml, /stories_export.xml"
+
+      - name: Run post-deployment Laravel commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /home/makoon/laravel-blog
+            # Cache configurations and routes for maximum performance
+            /usr/local/bin/ea-php82 artisan config:cache
+            /usr/local/bin/ea-php82 artisan route:cache
+            /usr/local/bin/ea-php82 artisan view:cache
+            # Re-generate sitemap.xml
+            /usr/local/bin/ea-php82 artisan tinker --execute="app(App\Services\SitemapService::class)->generate()"
+            # Create/Update the symbolic link from public to public_html/blogs
+            ln -sfn /home/makoon/laravel-blog/public /home/makoon/public_html/blogs
