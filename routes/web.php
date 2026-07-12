@@ -301,9 +301,9 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/about-us', [HomeController::class, 'about'])->name('about');
+Route::get('/blogs/about-us', [HomeController::class, 'about'])->name('about');
 Route::get('/blogs', [HomeController::class, 'index'])->name('blogs.home');
-Route::get('/all-blogs', [HomeController::class, 'blogs'])->name('blogs');
+Route::get('/blogs/all-blogs', [HomeController::class, 'blogs'])->name('blogs');
 Route::get('/stories', [HomeController::class, 'stories'])->name('stories');
 Route::get('/printables', [HomeController::class, 'printables'])->name('printables');
 Route::get('/sessions', [HomeController::class, 'sessions'])->name('sessions');

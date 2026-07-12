@@ -10,7 +10,7 @@ test('article details redirect with query parameter redirects to article show wi
 test('article details redirect without query parameter redirects to articles list with 302', function () {
     $response = $this->get('/article-details');
 
-    $response->assertRedirect('/all-blogs');
+    $response->assertRedirect('/blogs/all-blogs');
     $response->assertStatus(302);
 });
 
@@ -24,7 +24,7 @@ test('blog details redirect with query parameter redirects to blog show with 301
 test('blog details redirect without query parameter redirects to articles list with 302', function () {
     $response = $this->get('/blog-details');
 
-    $response->assertRedirect('/all-blogs');
+    $response->assertRedirect('/blogs/all-blogs');
     $response->assertStatus(302);
 });
 

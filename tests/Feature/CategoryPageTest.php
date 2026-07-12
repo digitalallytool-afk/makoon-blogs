@@ -42,7 +42,7 @@ test('category page returns 404 for invalid slug', function () {
 });
 
 test('blogs list page returns 200 and no view exception occurs', function () {
-    $response = $this->get('/all-blogs');
+    $response = $this->get('/blogs/all-blogs');
 
     $response->assertSuccessful();
     $response->assertViewIs('frontend.pages.all-posts');

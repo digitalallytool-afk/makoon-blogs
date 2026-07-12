@@ -19,14 +19,8 @@ npm run build
 # सैटमैप जनरेट करें (Tinker से)
 /usr/local/bin/ea-php82 artisan tinker --execute="app(App\Services\SitemapService::class)->generate()"
 
-# सिमलिंक बनाएं ( सभी पाथ के लिए )
+# सिमलिंक बनाएं
 ln -sfn /home/makoon/laravel-blog/public /home/makoon/public_html/blogs
-ln -sfn /home/makoon/laravel-blog/public /home/makoon/public_html/all-blogs
-ln -sfn /home/makoon/laravel-blog/public /home/makoon/public_html/stories
-ln -sfn /home/makoon/laravel-blog/public /home/makoon/public_html/printables
-ln -sfn /home/makoon/laravel-blog/public /home/makoon/public_html/sessions
-ln -sfn /home/makoon/laravel-blog/public /home/makoon/public_html/author
-ln -sfn /home/makoon/laravel-blog/public /home/makoon/public_html/author-sana-kapoor
 
 # सही परमिशन सेट करें
 chown -R makoon:makoon /home/makoon/laravel-blog
