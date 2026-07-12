@@ -42,7 +42,7 @@ jobs:
           REMOTE_USER: ${{ secrets.SSH_USERNAME }}
           REMOTE_PORT: ${{ secrets.SSH_PORT }}
           TARGET: "/home/makoon/laravel-blog"
-          EXCLUDE: "/node_modules/, /tests/, /storage/framework/cache/data/, .git/, .github/, /public/uploads/, public/uploads/, /wordpress_export.xml, /stories_export.xml"
+          EXCLUDE: "/node_modules/, /tests/, /storage/framework/cache/data/, .git/, .github/, /public/uploads/, public/uploads/, /wordpress_export.xml, /stories_export.xml, /.env, .env"
 
       - name: Run post-deployment Laravel commands
         uses: appleboy/ssh-action@master
