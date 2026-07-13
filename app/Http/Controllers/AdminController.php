@@ -2,22 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Permission;
-use App\Models\Role;
-use App\Models\User;
-use App\Models\Category;
 use App\Models\Author;
+use App\Models\Category;
+use App\Models\Permission;
 use App\Models\Post;
-use App\Models\StoryCategory;
-use App\Models\Story;
 use App\Models\Printable;
+use App\Models\Role;
 use App\Models\SessionCategory;
+use App\Models\Story;
+use App\Models\StoryCategory;
+use App\Models\User;
 use App\Models\VideoSession;
 use App\Services\SitemapService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AdminController extends Controller
 {
@@ -94,10 +99,10 @@ class AdminController extends Controller
     /**
      * Export all filtered posts to CSV (Excel-compatible).
      */
-    public function exportPosts(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function exportPosts(Request $request): StreamedResponse
     {
-        $search   = $request->input('search');
-        $status   = $request->input('status');
+        $search = $request->input('search');
+        $status = $request->input('status');
         $category = $request->input('category_id');
 
         $posts = Post::with(['category', 'author'])
@@ -123,7 +128,7 @@ class AdminController extends Controller
                 ]);
             }
             fclose($handle);
-        }, 'blogs-' . now()->format('Y-m-d') . '.csv', [
+        }, 'blogs-'.now()->format('Y-m-d').'.csv', [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
@@ -145,55 +150,57 @@ class AdminController extends Controller
     public function storePost(Request $request, SitemapService $sitemapService): RedirectResponse
     {
         $validated = $request->validate([
-            'title'              => 'required|string|max:255',
-            'content'            => 'required|string',
-            'excerpt'            => 'nullable|string',
-            'status'             => 'required|in:published,draft',
-            'category_id'        => 'required|exists:categories,id',
-            'author_id'          => 'required|exists:authors,id',
-            'featured_image'     => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'excerpt' => 'nullable|string',
+            'status' => 'required|in:published,draft',
+            'category_id' => 'required|exists:categories,id',
+            'author_id' => 'required|exists:authors,id',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'featured_image_url' => 'nullable|string',
-            'is_selected'        => 'nullable|boolean',
-            'meta_title'         => 'nullable|string|max:255',
-            'meta_description'   => 'nullable|string|max:500',
-            'meta_keywords'      => 'nullable|string|max:500',
+            'is_selected' => 'nullable|boolean',
+            'is_trending' => 'nullable|boolean',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:500',
         ]);
 
-        $slug = \Illuminate\Support\Str::slug($validated['title']);
+        $slug = Str::slug($validated['title']);
         if (empty($slug)) {
             $slug = 'blog';
         }
         $originalSlug = $slug;
         $count = 1;
         while (Post::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $count++;
+            $slug = $originalSlug.'-'.$count++;
         }
 
         $imagePath = null;
         if ($request->hasFile('featured_image')) {
             $file = $request->file('featured_image');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/posts'), $filename);
-            $imagePath = 'uploads/posts/' . $filename;
+            $imagePath = 'uploads/posts/'.$filename;
         } elseif ($request->input('featured_image_url')) {
             $imagePath = $request->input('featured_image_url');
         }
 
         Post::create([
-            'title'            => $validated['title'],
-            'slug'             => $slug,
-            'content'          => $validated['content'],
-            'excerpt'          => $validated['excerpt'] ?? null,
-            'status'           => $validated['status'],
-            'category_id'      => $validated['category_id'],
-            'author_id'        => $validated['author_id'],
-            'featured_image'   => $imagePath,
-            'is_selected'      => $request->boolean('is_selected'),
-            'view_count'       => 0,
-            'meta_title'       => $validated['meta_title'] ?? null,
+            'title' => $validated['title'],
+            'slug' => $slug,
+            'content' => $validated['content'],
+            'excerpt' => $validated['excerpt'] ?? null,
+            'status' => $validated['status'],
+            'category_id' => $validated['category_id'],
+            'author_id' => $validated['author_id'],
+            'featured_image' => $imagePath,
+            'is_selected' => $request->boolean('is_selected'),
+            'is_trending' => $request->boolean('is_trending'),
+            'view_count' => 0,
+            'meta_title' => $validated['meta_title'] ?? null,
             'meta_description' => $validated['meta_description'] ?? null,
-            'meta_keywords'    => $validated['meta_keywords'] ?? null,
-            'canonical_url'    => rtrim(config('app.url'), '/') . '/blogs/' . $slug,
+            'meta_keywords' => $validated['meta_keywords'] ?? null,
+            'canonical_url' => rtrim(config('app.url'), '/').'/blogs/'.$slug,
         ]);
 
         // Rebuild sitemap & robots.txt to reflect current published posts
@@ -219,7 +226,7 @@ class AdminController extends Controller
         // Delete any embedded images in the post content
         if ($post->content) {
             preg_match_all('/<img[^>]+src="([^">]+)"/i', $post->content, $matches);
-            if (!empty($matches[1])) {
+            if (! empty($matches[1])) {
                 foreach ($matches[1] as $src) {
                     $path = parse_url($src, PHP_URL_PATH);
                     if ($path) {
@@ -247,6 +254,7 @@ class AdminController extends Controller
     public function showPost(Post $post): View
     {
         $post->load(['category', 'author']);
+
         return view('backend.pages.view_post', compact('post'));
     }
 
@@ -267,33 +275,34 @@ class AdminController extends Controller
     public function updatePost(Request $request, Post $post, SitemapService $sitemapService): RedirectResponse
     {
         $validated = $request->validate([
-            'title'              => 'required|string|max:255',
-            'content'            => 'required|string',
-            'excerpt'            => 'nullable|string',
-            'status'             => 'required|in:published,draft',
-            'category_id'        => 'required|exists:categories,id',
-            'author_id'          => 'required|exists:authors,id',
-            'featured_image'     => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'excerpt' => 'nullable|string',
+            'status' => 'required|in:published,draft',
+            'category_id' => 'required|exists:categories,id',
+            'author_id' => 'required|exists:authors,id',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'featured_image_url' => 'nullable|string',
-            'is_selected'        => 'nullable|boolean',
-            'meta_title'         => 'nullable|string|max:255',
-            'meta_description'   => 'nullable|string|max:500',
-            'meta_keywords'      => 'nullable|string|max:500',
+            'is_selected' => 'nullable|boolean',
+            'is_trending' => 'nullable|boolean',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:500',
         ]);
 
         // Handle slug generation if title changed
         if ($validated['title'] !== $post->title) {
-            $slug = \Illuminate\Support\Str::slug($validated['title']);
+            $slug = Str::slug($validated['title']);
             if (empty($slug)) {
                 $slug = 'blog';
             }
             $originalSlug = $slug;
             $count = 1;
             while (Post::where('slug', $slug)->where('id', '!=', $post->id)->exists()) {
-                $slug = $originalSlug . '-' . $count++;
+                $slug = $originalSlug.'-'.$count++;
             }
             $post->slug = $slug;
-            $post->canonical_url = rtrim(config('app.url'), '/') . '/blogs/' . $slug;
+            $post->canonical_url = rtrim(config('app.url'), '/').'/blogs/'.$slug;
         }
 
         // Handle featured image upload
@@ -304,9 +313,9 @@ class AdminController extends Controller
             }
 
             $file = $request->file('featured_image');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/posts'), $filename);
-            $post->featured_image = 'uploads/posts/' . $filename;
+            $post->featured_image = 'uploads/posts/'.$filename;
         } elseif ($request->input('featured_image_url')) {
             $post->featured_image = $request->input('featured_image_url');
         }
@@ -318,6 +327,7 @@ class AdminController extends Controller
         $post->category_id = $validated['category_id'];
         $post->author_id = $validated['author_id'];
         $post->is_selected = $request->boolean('is_selected');
+        $post->is_trending = $request->boolean('is_trending');
         $post->meta_title = $validated['meta_title'] ?? null;
         $post->meta_description = $validated['meta_description'] ?? null;
         $post->meta_keywords = $validated['meta_keywords'] ?? null;
@@ -341,9 +351,9 @@ class AdminController extends Controller
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/posts'), $filename);
-            $url = asset('uploads/posts/' . $filename);
+            $url = asset('uploads/posts/'.$filename);
 
             return response()->json(['url' => $url]);
         }
@@ -381,7 +391,7 @@ class AdminController extends Controller
     /**
      * Export all categories to CSV.
      */
-    public function exportCategories(): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function exportCategories(): StreamedResponse
     {
         $categories = Category::with('parent')->get();
 
@@ -400,7 +410,7 @@ class AdminController extends Controller
                 ]);
             }
             fclose($handle);
-        }, 'categories-' . now()->format('Y-m-d') . '.csv', [
+        }, 'categories-'.now()->format('Y-m-d').'.csv', [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
@@ -416,14 +426,14 @@ class AdminController extends Controller
             'parent_id' => 'nullable|exists:categories,id',
         ]);
 
-        $slug = \Illuminate\Support\Str::slug($validated['name']);
+        $slug = Str::slug($validated['name']);
         if (empty($slug)) {
             $slug = 'category';
         }
         $originalSlug = $slug;
         $count = 1;
         while (Category::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $count++;
+            $slug = $originalSlug.'-'.$count++;
         }
 
         Category::create([
@@ -434,6 +444,7 @@ class AdminController extends Controller
         ]);
 
         $type = isset($validated['parent_id']) ? 'Subcategory' : 'Category';
+
         return redirect()->back()->with('success', "{$type} created successfully.");
     }
 
@@ -452,14 +463,14 @@ class AdminController extends Controller
             return redirect()->back()->with('error', 'A category cannot be its own parent.');
         }
 
-        $slug = \Illuminate\Support\Str::slug($validated['name']);
+        $slug = Str::slug($validated['name']);
         if (empty($slug)) {
             $slug = 'category';
         }
         $originalSlug = $slug;
         $count = 1;
         while (Category::where('slug', $slug)->where('id', '!=', $category->id)->exists()) {
-            $slug = $originalSlug . '-' . $count++;
+            $slug = $originalSlug.'-'.$count++;
         }
 
         $category->update([
@@ -490,16 +501,16 @@ class AdminController extends Controller
     {
         $items = $this->getMediaFilesFromDisk();
         $perPage = 21;
-        $page = \Illuminate\Pagination\Paginator::resolveCurrentPage('page') ?: 1;
+        $page = Paginator::resolveCurrentPage('page') ?: 1;
         $currentPageItems = array_slice($items, ($page - 1) * $perPage, $perPage);
-        
-        $mediaFiles = new \Illuminate\Pagination\LengthAwarePaginator(
+
+        $mediaFiles = new LengthAwarePaginator(
             $currentPageItems,
             count($items),
             $perPage,
             $page,
             [
-                'path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(),
+                'path' => Paginator::resolveCurrentPath(),
                 'pageName' => 'page',
             ]
         );
@@ -519,7 +530,7 @@ class AdminController extends Controller
 
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
-                $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
+                $filename = time().'_'.preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
                 $file->move(public_path('uploads/posts'), $filename);
             }
         }
@@ -540,8 +551,9 @@ class AdminController extends Controller
         $localPath = public_path($path);
 
         // Security check: ensure path is inside uploads folder and file exists
-        if (str_contains($path, 'uploads/') && !str_contains($path, '..') && file_exists($localPath) && is_file($localPath)) {
+        if (str_contains($path, 'uploads/') && ! str_contains($path, '..') && file_exists($localPath) && is_file($localPath)) {
             @unlink($localPath);
+
             return redirect()->back()->with('success', 'File deleted successfully.');
         }
 
@@ -567,10 +579,10 @@ class AdminController extends Controller
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/posts'), $filename);
-            $url = asset('uploads/posts/' . $filename);
-            $path = 'uploads/posts/' . $filename;
+            $url = asset('uploads/posts/'.$filename);
+            $path = 'uploads/posts/'.$filename;
 
             return response()->json([
                 'url' => $url,
@@ -599,9 +611,9 @@ class AdminController extends Controller
                 $dirFiles = scandir($path);
                 foreach ($dirFiles as $file) {
                     if ($file !== '.' && $file !== '..') {
-                        $filePath = $path . '/' . $file;
+                        $filePath = $path.'/'.$file;
                         if (is_file($filePath)) {
-                            $relativePath = 'uploads/' . basename($path) . '/' . $file;
+                            $relativePath = 'uploads/'.basename($path).'/'.$file;
                             $files[] = [
                                 'name' => $file,
                                 'url' => asset($relativePath),
@@ -617,7 +629,7 @@ class AdminController extends Controller
         }
 
         // Sort by time descending (newest first)
-        usort($files, fn($a, $b) => $b['time'] <=> $a['time']);
+        usort($files, fn ($a, $b) => $b['time'] <=> $a['time']);
 
         return $files;
     }
@@ -637,6 +649,7 @@ class AdminController extends Controller
         if (in_array($ext, ['mp3', 'wav', 'ogg'])) {
             return 'audio';
         }
+
         return 'document';
     }
 
@@ -761,7 +774,7 @@ class AdminController extends Controller
     /**
      * Export all authors to CSV.
      */
-    public function exportAuthors(): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function exportAuthors(): StreamedResponse
     {
         $authors = Author::latest()->get();
 
@@ -777,7 +790,7 @@ class AdminController extends Controller
                 ]);
             }
             fclose($handle);
-        }, 'authors-' . now()->format('Y-m-d') . '.csv', [
+        }, 'authors-'.now()->format('Y-m-d').'.csv', [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
@@ -796,9 +809,9 @@ class AdminController extends Controller
         $imagePath = null;
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/authors'), $filename);
-            $imagePath = 'uploads/authors/' . $filename;
+            $imagePath = 'uploads/authors/'.$filename;
         }
 
         Author::create([
@@ -829,9 +842,9 @@ class AdminController extends Controller
             }
 
             $file = $request->file('image');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/authors'), $filename);
-            $imagePath = 'uploads/authors/' . $filename;
+            $imagePath = 'uploads/authors/'.$filename;
         }
 
         $author->update([
@@ -885,14 +898,14 @@ class AdminController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $slug = \Illuminate\Support\Str::slug($validated['name']);
+        $slug = Str::slug($validated['name']);
         if (empty($slug)) {
             $slug = 'category';
         }
         $originalSlug = $slug;
         $count = 1;
         while (StoryCategory::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $count++;
+            $slug = $originalSlug.'-'.$count++;
         }
 
         StoryCategory::create([
@@ -914,14 +927,14 @@ class AdminController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $slug = \Illuminate\Support\Str::slug($validated['name']);
+        $slug = Str::slug($validated['name']);
         if (empty($slug)) {
             $slug = 'category';
         }
         $originalSlug = $slug;
         $count = 1;
         while (StoryCategory::where('slug', $slug)->where('id', '!=', $storyCategory->id)->exists()) {
-            $slug = $originalSlug . '-' . $count++;
+            $slug = $originalSlug.'-'.$count++;
         }
 
         $storyCategory->update([
@@ -947,7 +960,7 @@ class AdminController extends Controller
     /**
      * Export all story categories to CSV.
      */
-    public function exportStoryCategories(): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function exportStoryCategories(): StreamedResponse
     {
         $categories = StoryCategory::latest()->get();
 
@@ -964,7 +977,7 @@ class AdminController extends Controller
                 ]);
             }
             fclose($handle);
-        }, 'story-categories-' . now()->format('Y-m-d') . '.csv', [
+        }, 'story-categories-'.now()->format('Y-m-d').'.csv', [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
@@ -1008,53 +1021,53 @@ class AdminController extends Controller
     public function storeStory(Request $request, SitemapService $sitemapService): RedirectResponse
     {
         $validated = $request->validate([
-            'title'              => 'required|string|max:255',
-            'content'            => 'required|string',
-            'excerpt'            => 'nullable|string',
-            'status'             => 'required|in:published,draft',
-            'story_category_id'  => 'required|exists:story_categories,id',
-            'author_id'          => 'required|exists:authors,id',
-            'featured_image'     => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'excerpt' => 'nullable|string',
+            'status' => 'required|in:published,draft',
+            'story_category_id' => 'required|exists:story_categories,id',
+            'author_id' => 'required|exists:authors,id',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'featured_image_url' => 'nullable|string',
-            'meta_title'         => 'nullable|string|max:255',
-            'meta_description'   => 'nullable|string|max:500',
-            'meta_keywords'      => 'nullable|string|max:500',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:500',
         ]);
 
-        $slug = \Illuminate\Support\Str::slug($validated['title']);
+        $slug = Str::slug($validated['title']);
         if (empty($slug)) {
             $slug = 'story';
         }
         $originalSlug = $slug;
         $count = 1;
         while (Story::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $count++;
+            $slug = $originalSlug.'-'.$count++;
         }
 
         $imagePath = null;
         if ($request->hasFile('featured_image')) {
             $file = $request->file('featured_image');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/posts'), $filename);
-            $imagePath = 'uploads/posts/' . $filename;
+            $imagePath = 'uploads/posts/'.$filename;
         } elseif ($request->input('featured_image_url')) {
             $imagePath = $request->input('featured_image_url');
         }
 
         Story::create([
-            'title'             => $validated['title'],
-            'slug'              => $slug,
-            'content'           => $validated['content'],
-            'excerpt'           => $validated['excerpt'] ?? null,
-            'status'            => $validated['status'],
+            'title' => $validated['title'],
+            'slug' => $slug,
+            'content' => $validated['content'],
+            'excerpt' => $validated['excerpt'] ?? null,
+            'status' => $validated['status'],
             'story_category_id' => $validated['story_category_id'],
-            'author_id'         => $validated['author_id'],
-            'featured_image'    => $imagePath,
-            'view_count'        => 0,
-            'meta_title'        => $validated['meta_title'] ?? null,
-            'meta_description'  => $validated['meta_description'] ?? null,
-            'meta_keywords'     => $validated['meta_keywords'] ?? null,
-            'canonical_url'     => rtrim(config('app.url'), '/') . '/stories/' . $slug,
+            'author_id' => $validated['author_id'],
+            'featured_image' => $imagePath,
+            'view_count' => 0,
+            'meta_title' => $validated['meta_title'] ?? null,
+            'meta_description' => $validated['meta_description'] ?? null,
+            'meta_keywords' => $validated['meta_keywords'] ?? null,
+            'canonical_url' => rtrim(config('app.url'), '/').'/stories/'.$slug,
         ]);
 
         // Rebuild sitemap & robots.txt to reflect current published stories
@@ -1073,6 +1086,7 @@ class AdminController extends Controller
     public function showStory(Story $story): View
     {
         $story->load(['storyCategory', 'author']);
+
         return view('backend.pages.view_story', compact('story'));
     }
 
@@ -1093,32 +1107,32 @@ class AdminController extends Controller
     public function updateStory(Request $request, Story $story, SitemapService $sitemapService): RedirectResponse
     {
         $validated = $request->validate([
-            'title'              => 'required|string|max:255',
-            'content'            => 'required|string',
-            'excerpt'            => 'nullable|string',
-            'status'             => 'required|in:published,draft',
-            'story_category_id'  => 'required|exists:story_categories,id',
-            'author_id'          => 'required|exists:authors,id',
-            'featured_image'     => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'excerpt' => 'nullable|string',
+            'status' => 'required|in:published,draft',
+            'story_category_id' => 'required|exists:story_categories,id',
+            'author_id' => 'required|exists:authors,id',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'featured_image_url' => 'nullable|string',
-            'meta_title'         => 'nullable|string|max:255',
-            'meta_description'   => 'nullable|string|max:500',
-            'meta_keywords'      => 'nullable|string|max:500',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:500',
         ]);
 
         // Handle slug generation if title changed
         if ($validated['title'] !== $story->title) {
-            $slug = \Illuminate\Support\Str::slug($validated['title']);
+            $slug = Str::slug($validated['title']);
             if (empty($slug)) {
                 $slug = 'story';
             }
             $originalSlug = $slug;
             $count = 1;
             while (Story::where('slug', $slug)->where('id', '!=', $story->id)->exists()) {
-                $slug = $originalSlug . '-' . $count++;
+                $slug = $originalSlug.'-'.$count++;
             }
             $story->slug = $slug;
-            $story->canonical_url = rtrim(config('app.url'), '/') . '/stories/' . $slug;
+            $story->canonical_url = rtrim(config('app.url'), '/').'/stories/'.$slug;
         }
 
         // Handle featured image upload
@@ -1129,9 +1143,9 @@ class AdminController extends Controller
             }
 
             $file = $request->file('featured_image');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/posts'), $filename);
-            $story->featured_image = 'uploads/posts/' . $filename;
+            $story->featured_image = 'uploads/posts/'.$filename;
         } elseif ($request->input('featured_image_url')) {
             $story->featured_image = $request->input('featured_image_url');
         }
@@ -1167,7 +1181,7 @@ class AdminController extends Controller
         // Delete any embedded images in the story content
         if ($story->content) {
             preg_match_all('/<img[^>]+src="([^">]+)"/i', $story->content, $matches);
-            if (!empty($matches[1])) {
+            if (! empty($matches[1])) {
                 foreach ($matches[1] as $src) {
                     $path = parse_url($src, PHP_URL_PATH);
                     if ($path) {
@@ -1191,7 +1205,7 @@ class AdminController extends Controller
     /**
      * Export all filtered stories to CSV.
      */
-    public function exportStories(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function exportStories(Request $request): StreamedResponse
     {
         $search = $request->input('search');
         $status = $request->input('status');
@@ -1220,7 +1234,7 @@ class AdminController extends Controller
                 ]);
             }
             fclose($handle);
-        }, 'stories-' . now()->format('Y-m-d') . '.csv', [
+        }, 'stories-'.now()->format('Y-m-d').'.csv', [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
@@ -1262,11 +1276,11 @@ class AdminController extends Controller
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $originalName = $file->getClientOriginalName();
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '', $originalName);
-            
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9_.-]/', '', $originalName);
+
             // Move to uploads/printables/files
             $file->move(public_path('uploads/printables/files'), $filename);
-            $filePath = 'uploads/printables/files/' . $filename;
+            $filePath = 'uploads/printables/files/'.$filename;
             $fileSize = filesize(public_path($filePath));
 
             return response()->json([
@@ -1286,46 +1300,46 @@ class AdminController extends Controller
     public function storePrintable(Request $request, SitemapService $sitemapService): RedirectResponse
     {
         $validated = $request->validate([
-            'name'               => 'required|string|max:255',
-            'description'        => 'nullable|string',
-            'status'             => 'required|in:published,draft',
-            'featured_image'     => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'required|in:published,draft',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'featured_image_url' => 'nullable|string',
-            'file_path'          => 'required|string',
-            'file_name'          => 'required|string',
-            'file_size'          => 'required|integer',
+            'file_path' => 'required|string',
+            'file_name' => 'required|string',
+            'file_size' => 'required|integer',
         ]);
 
-        $slug = \Illuminate\Support\Str::slug($validated['name']);
+        $slug = Str::slug($validated['name']);
         if (empty($slug)) {
             $slug = 'printable';
         }
         $originalSlug = $slug;
         $count = 1;
         while (Printable::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $count++;
+            $slug = $originalSlug.'-'.$count++;
         }
 
         $imagePath = null;
         if ($request->hasFile('featured_image')) {
             $file = $request->file('featured_image');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/printables/images'), $filename);
-            $imagePath = 'uploads/printables/images/' . $filename;
+            $imagePath = 'uploads/printables/images/'.$filename;
         } elseif ($request->input('featured_image_url')) {
             $imagePath = $request->input('featured_image_url');
         }
 
         Printable::create([
-            'name'           => $validated['name'],
-            'slug'           => $slug,
-            'description'    => $validated['description'] ?? null,
-            'image'          => $imagePath,
-            'file_path'      => $validated['file_path'],
-            'file_name'      => $validated['file_name'],
-            'file_size'      => $validated['file_size'],
+            'name' => $validated['name'],
+            'slug' => $slug,
+            'description' => $validated['description'] ?? null,
+            'image' => $imagePath,
+            'file_path' => $validated['file_path'],
+            'file_name' => $validated['file_name'],
+            'file_size' => $validated['file_size'],
             'download_count' => 0,
-            'status'         => $validated['status'],
+            'status' => $validated['status'],
         ]);
 
         $sitemapService->generate();
@@ -1359,26 +1373,26 @@ class AdminController extends Controller
     public function updatePrintable(Request $request, Printable $printable, SitemapService $sitemapService): RedirectResponse
     {
         $validated = $request->validate([
-            'name'               => 'required|string|max:255',
-            'description'        => 'nullable|string',
-            'status'             => 'required|in:published,draft',
-            'featured_image'     => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'required|in:published,draft',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'featured_image_url' => 'nullable|string',
-            'file_path'          => 'required|string',
-            'file_name'          => 'required|string',
-            'file_size'          => 'required|integer',
+            'file_path' => 'required|string',
+            'file_name' => 'required|string',
+            'file_size' => 'required|integer',
         ]);
 
         // Handle slug generation if name changed
         if ($validated['name'] !== $printable->name) {
-            $slug = \Illuminate\Support\Str::slug($validated['name']);
+            $slug = Str::slug($validated['name']);
             if (empty($slug)) {
                 $slug = 'printable';
             }
             $originalSlug = $slug;
             $count = 1;
             while (Printable::where('slug', $slug)->where('id', '!=', $printable->id)->exists()) {
-                $slug = $originalSlug . '-' . $count++;
+                $slug = $originalSlug.'-'.$count++;
             }
             $printable->slug = $slug;
         }
@@ -1391,9 +1405,9 @@ class AdminController extends Controller
             }
 
             $file = $request->file('featured_image');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/printables/images'), $filename);
-            $printable->image = 'uploads/printables/images/' . $filename;
+            $printable->image = 'uploads/printables/images/'.$filename;
         } elseif ($request->input('featured_image_url')) {
             $printable->image = $request->input('featured_image_url');
         }
@@ -1444,7 +1458,7 @@ class AdminController extends Controller
     /**
      * Export printables to CSV.
      */
-    public function exportPrintables(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function exportPrintables(Request $request): StreamedResponse
     {
         $search = $request->input('search');
         $status = $request->input('status');
@@ -1470,7 +1484,7 @@ class AdminController extends Controller
                 ]);
             }
             fclose($handle);
-        }, 'printables-' . now()->format('Y-m-d') . '.csv', [
+        }, 'printables-'.now()->format('Y-m-d').'.csv', [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
@@ -1487,6 +1501,7 @@ class AdminController extends Controller
     public function sessionCategories(): View
     {
         $categories = SessionCategory::withCount('videoSessions')->latest()->get();
+
         return view('backend.pages.add_SessionCategory', compact('categories'));
     }
 
@@ -1496,23 +1511,23 @@ class AdminController extends Controller
     public function storeSessionCategory(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name'        => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
 
-        $slug = \Illuminate\Support\Str::slug($validated['name']);
+        $slug = Str::slug($validated['name']);
         if (empty($slug)) {
             $slug = 'category';
         }
         $originalSlug = $slug;
         $count = 1;
         while (SessionCategory::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $count++;
+            $slug = $originalSlug.'-'.$count++;
         }
 
         SessionCategory::create([
-            'name'        => $validated['name'],
-            'slug'        => $slug,
+            'name' => $validated['name'],
+            'slug' => $slug,
             'description' => $validated['description'] ?? null,
         ]);
 
@@ -1525,19 +1540,19 @@ class AdminController extends Controller
     public function updateSessionCategory(Request $request, SessionCategory $sessionCategory): RedirectResponse
     {
         $validated = $request->validate([
-            'name'        => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
 
         if ($validated['name'] !== $sessionCategory->name) {
-            $slug = \Illuminate\Support\Str::slug($validated['name']);
+            $slug = Str::slug($validated['name']);
             if (empty($slug)) {
                 $slug = 'category';
             }
             $originalSlug = $slug;
             $count = 1;
             while (SessionCategory::where('slug', $slug)->where('id', '!=', $sessionCategory->id)->exists()) {
-                $slug = $originalSlug . '-' . $count++;
+                $slug = $originalSlug.'-'.$count++;
             }
             $sessionCategory->slug = $slug;
         }
@@ -1559,13 +1574,14 @@ class AdminController extends Controller
         }
 
         $sessionCategory->delete();
+
         return redirect()->back()->with('success', 'Video Session Category deleted successfully.');
     }
 
     /**
      * Export session categories to CSV.
      */
-    public function exportSessionCategories(): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function exportSessionCategories(): StreamedResponse
     {
         $categories = SessionCategory::withCount('videoSessions')->latest()->get();
 
@@ -1583,7 +1599,7 @@ class AdminController extends Controller
                 ]);
             }
             fclose($handle);
-        }, 'session-categories-' . now()->format('Y-m-d') . '.csv', [
+        }, 'session-categories-'.now()->format('Y-m-d').'.csv', [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
@@ -1622,6 +1638,7 @@ class AdminController extends Controller
     public function newVideoSession(): View
     {
         $categories = SessionCategory::orderBy('name')->get();
+
         return view('backend.pages.new_video_session', compact('categories'));
     }
 
@@ -1631,50 +1648,50 @@ class AdminController extends Controller
     public function storeVideoSession(Request $request, SitemapService $sitemapService): RedirectResponse
     {
         $validated = $request->validate([
-            'title'               => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'session_category_id' => 'required|exists:session_categories,id',
-            'video_url'           => 'required|string',
-            'description'        => 'nullable|string',
-            'status'             => 'required|in:published,draft',
-            'featured_image'     => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
+            'video_url' => 'required|string',
+            'description' => 'nullable|string',
+            'status' => 'required|in:published,draft',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'featured_image_url' => 'nullable|string',
         ]);
 
         $embedUrl = $this->parseYoutubeEmbedUrl($validated['video_url']);
-        if (!$embedUrl) {
+        if (! $embedUrl) {
             return redirect()->back()
                 ->withInput()
                 ->withErrors(['video_url' => 'The video URL must be a valid YouTube link (e.g. watch link, sharing link, or embed link).']);
         }
 
-        $slug = \Illuminate\Support\Str::slug($validated['title']);
+        $slug = Str::slug($validated['title']);
         if (empty($slug)) {
             $slug = 'session';
         }
         $originalSlug = $slug;
         $count = 1;
         while (VideoSession::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $count++;
+            $slug = $originalSlug.'-'.$count++;
         }
 
         $imagePath = null;
         if ($request->hasFile('featured_image')) {
             $file = $request->file('featured_image');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/sessions/images'), $filename);
-            $imagePath = 'uploads/sessions/images/' . $filename;
+            $imagePath = 'uploads/sessions/images/'.$filename;
         } elseif ($request->input('featured_image_url')) {
             $imagePath = $request->input('featured_image_url');
         }
 
         VideoSession::create([
             'session_category_id' => $validated['session_category_id'],
-            'title'               => $validated['title'],
-            'slug'                => $slug,
-            'description'        => $validated['description'] ?? null,
-            'video_url'           => $embedUrl,
-            'image'               => $imagePath,
-            'status'              => $validated['status'],
+            'title' => $validated['title'],
+            'slug' => $slug,
+            'description' => $validated['description'] ?? null,
+            'video_url' => $embedUrl,
+            'image' => $imagePath,
+            'status' => $validated['status'],
         ]);
 
         $sitemapService->generate();
@@ -1700,6 +1717,7 @@ class AdminController extends Controller
     public function editVideoSession(VideoSession $videoSession): View
     {
         $categories = SessionCategory::orderBy('name')->get();
+
         return view('backend.pages.edit_video_session', compact('videoSession', 'categories'));
     }
 
@@ -1709,31 +1727,31 @@ class AdminController extends Controller
     public function updateVideoSession(Request $request, VideoSession $videoSession, SitemapService $sitemapService): RedirectResponse
     {
         $validated = $request->validate([
-            'title'               => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'session_category_id' => 'required|exists:session_categories,id',
-            'video_url'           => 'required|string',
-            'description'        => 'nullable|string',
-            'status'             => 'required|in:published,draft',
-            'featured_image'     => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
+            'video_url' => 'required|string',
+            'description' => 'nullable|string',
+            'status' => 'required|in:published,draft',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'featured_image_url' => 'nullable|string',
         ]);
 
         $embedUrl = $this->parseYoutubeEmbedUrl($validated['video_url']);
-        if (!$embedUrl) {
+        if (! $embedUrl) {
             return redirect()->back()
                 ->withInput()
                 ->withErrors(['video_url' => 'The video URL must be a valid YouTube link (e.g. watch link, sharing link, or embed link).']);
         }
 
         if ($validated['title'] !== $videoSession->title) {
-            $slug = \Illuminate\Support\Str::slug($validated['title']);
+            $slug = Str::slug($validated['title']);
             if (empty($slug)) {
                 $slug = 'session';
             }
             $originalSlug = $slug;
             $count = 1;
             while (VideoSession::where('slug', $slug)->where('id', '!=', $videoSession->id)->exists()) {
-                $slug = $originalSlug . '-' . $count++;
+                $slug = $originalSlug.'-'.$count++;
             }
             $videoSession->slug = $slug;
         }
@@ -1744,9 +1762,9 @@ class AdminController extends Controller
             }
 
             $file = $request->file('featured_image');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
             $file->move(public_path('uploads/sessions/images'), $filename);
-            $videoSession->image = 'uploads/sessions/images/' . $filename;
+            $videoSession->image = 'uploads/sessions/images/'.$filename;
         } elseif ($request->input('featured_image_url')) {
             $videoSession->image = $request->input('featured_image_url');
         }
@@ -1783,7 +1801,7 @@ class AdminController extends Controller
     /**
      * Export video sessions to CSV.
      */
-    public function exportVideoSessions(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function exportVideoSessions(Request $request): StreamedResponse
     {
         $search = $request->input('search');
         $status = $request->input('status');
@@ -1811,7 +1829,7 @@ class AdminController extends Controller
                 ]);
             }
             fclose($handle);
-        }, 'video-sessions-' . now()->format('Y-m-d') . '.csv', [
+        }, 'video-sessions-'.now()->format('Y-m-d').'.csv', [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
@@ -1825,8 +1843,10 @@ class AdminController extends Controller
         $pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i';
         if (preg_match($pattern, $url, $matches)) {
             $videoId = $matches[1];
-            return "https://www.youtube.com/embed/" . $videoId;
+
+            return 'https://www.youtube.com/embed/'.$videoId;
         }
+
         return null;
     }
 
@@ -1836,7 +1856,7 @@ class AdminController extends Controller
     private function ensureRolesAndPermissionsAreSeeded(): void
     {
         if (Role::count() === 0 || Permission::count() === 0) {
-            \Illuminate\Support\Facades\Artisan::call('db:seed', [
+            Artisan::call('db:seed', [
                 '--class' => 'RolesAndPermissionsSeeder',
                 '--no-interaction' => true,
             ]);

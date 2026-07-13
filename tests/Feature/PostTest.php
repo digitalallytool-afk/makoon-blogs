@@ -43,13 +43,14 @@ test('can create a post with title, content, excerpt, category, author, and opti
     $featuredImage = UploadedFile::fake()->image('post_cover.png');
 
     $response = $this->actingAs($superAdmin)->post(route('posts.store'), [
-        'title'          => 'My First Article',
-        'content'        => 'This is the detailed body of my first article.',
-        'excerpt'        => 'An excerpt summary.',
-        'status'         => 'published',
-        'category_id'    => $category->id,
-        'author_id'      => $author->id,
+        'title' => 'My First Article',
+        'content' => 'This is the detailed body of my first article.',
+        'excerpt' => 'An excerpt summary.',
+        'status' => 'published',
+        'category_id' => $category->id,
+        'author_id' => $author->id,
         'featured_image' => $featuredImage,
+        'is_trending' => 1,
     ]);
 
     $response->assertRedirect(route('allPost'));
@@ -62,6 +63,7 @@ test('can create a post with title, content, excerpt, category, author, and opti
     expect($post->author_id)->toEqual($author->id);
     expect($post->view_count)->toEqual(0);
     expect($post->featured_image)->not->toBeNull();
+    expect($post->is_trending)->toBeTrue();
 
     // Check file exists on physical disk
     $path = public_path($post->featured_image);
@@ -89,11 +91,11 @@ test('can create a post and generate unique slug if title collision occurs', fun
 
     // Store a second post via endpoint with same title
     $response = $this->actingAs($superAdmin)->post(route('posts.store'), [
-        'title'       => 'Duplicate Title',
-        'content'     => 'Content 2',
-        'status'      => 'published',
+        'title' => 'Duplicate Title',
+        'content' => 'Content 2',
+        'status' => 'published',
         'category_id' => $category->id,
-        'author_id'   => $author->id,
+        'author_id' => $author->id,
     ]);
 
     $response->assertRedirect(route('allPost'));
@@ -188,6 +190,7 @@ test('authorized user can update an article', function () {
         'status' => 'published',
         'category_id' => $category->id,
         'author_id' => $author->id,
+        'is_trending' => 1,
     ]);
 
     $response->assertRedirect(route('allPost'));
@@ -196,6 +199,7 @@ test('authorized user can update an article', function () {
     $post->refresh();
     expect($post->title)->toEqual('Updated Post Title');
     expect($post->slug)->toEqual('updated-post-title');
+    expect($post->is_trending)->toBeTrue();
 });
 
 test('authorized user can upload editor image', function () {
@@ -248,7 +252,7 @@ test('deleting a post automatically unlinks embedded editor images from disk', f
     $post = Post::create([
         'title' => 'Post with image',
         'slug' => 'post-with-image',
-        'content' => '<p>Here is an image: <img src="' . $url . '"></p>',
+        'content' => '<p>Here is an image: <img src="'.$url.'"></p>',
         'category_id' => $category->id,
         'author_id' => $author->id,
     ]);
@@ -264,13 +268,13 @@ test('deleting a post automatically unlinks embedded editor images from disk', f
 
 test('authorized user can list media library files via api', function () {
     $superAdmin = User::where('email', 'admin@example.com')->first();
-    
+
     // Create a temporary file in uploads/posts to make sure list is not empty
     $dir = public_path('uploads/posts');
-    if (!file_exists($dir)) {
+    if (! file_exists($dir)) {
         mkdir($dir, 0755, true);
     }
-    $tempFile = $dir . '/temp_list_test.jpg';
+    $tempFile = $dir.'/temp_list_test.jpg';
     file_put_contents($tempFile, 'fake data');
 
     $response = $this->actingAs($superAdmin)->get(route('api.media.index'));
@@ -278,7 +282,7 @@ test('authorized user can list media library files via api', function () {
 
     $data = $response->json();
     expect(count($data))->toBeGreaterThan(0);
-    
+
     // Assert structure contains path, name, etc.
     $found = false;
     foreach ($data as $item) {
@@ -330,7 +334,7 @@ test('authorized user can upload media via web route', function () {
     $foundFile = null;
     foreach ($files as $file) {
         if (str_contains($file, 'web_upload_test.jpg')) {
-            $foundFile = $postsDir . '/' . $file;
+            $foundFile = $postsDir.'/'.$file;
             break;
         }
     }
@@ -345,10 +349,10 @@ test('authorized user can delete media via web route', function () {
 
     // Create a temporary file to delete
     $dir = public_path('uploads/posts');
-    if (!file_exists($dir)) {
+    if (! file_exists($dir)) {
         mkdir($dir, 0755, true);
     }
-    $tempFile = $dir . '/temp_delete_test.jpg';
+    $tempFile = $dir.'/temp_delete_test.jpg';
     file_put_contents($tempFile, 'fake data');
     expect(file_exists($tempFile))->toBeTrue();
 
@@ -376,20 +380,20 @@ test('can create a post using a pre-existing media library URL for the featured 
     // Reference a pre-existing/uploaded image url
     $existingPath = 'uploads/posts/pre_existing_cover.jpg';
     $fullPath = public_path($existingPath);
-    if (!file_exists(dirname($fullPath))) {
+    if (! file_exists(dirname($fullPath))) {
         mkdir(dirname($fullPath), 0755, true);
     }
     file_put_contents($fullPath, 'existing file data');
     expect(file_exists($fullPath))->toBeTrue();
 
     $response = $this->actingAs($superAdmin)->post(route('posts.store'), [
-        'title'               => 'My Media Library Cover Article',
-        'content'             => 'Post using media library cover.',
-        'excerpt'             => 'An excerpt.',
-        'status'              => 'published',
-        'category_id'         => $category->id,
-        'author_id'           => $author->id,
-        'featured_image_url'  => $existingPath, // selected from media library
+        'title' => 'My Media Library Cover Article',
+        'content' => 'Post using media library cover.',
+        'excerpt' => 'An excerpt.',
+        'status' => 'published',
+        'category_id' => $category->id,
+        'author_id' => $author->id,
+        'featured_image_url' => $existingPath, // selected from media library
     ]);
 
     $response->assertRedirect(route('allPost'));
@@ -428,18 +432,18 @@ test('can update a post using a pre-existing media library URL for the featured 
     // Pre-exist the new library file
     $newPath = 'uploads/posts/new_existing_cover.jpg';
     $fullPath = public_path($newPath);
-    if (!file_exists(dirname($fullPath))) {
+    if (! file_exists(dirname($fullPath))) {
         mkdir(dirname($fullPath), 0755, true);
     }
     file_put_contents($fullPath, 'new file data');
 
     $response = $this->actingAs($superAdmin)->put(route('posts.update', $post->id), [
-        'title'               => 'Article to Update Updated',
-        'content'             => 'Updated content',
-        'status'              => 'published',
+        'title' => 'Article to Update Updated',
+        'content' => 'Updated content',
+        'status' => 'published',
         'category_id' => $category->id,
         'author_id' => $author->id,
-        'featured_image_url'  => $newPath, // updated via media library url
+        'featured_image_url' => $newPath, // updated via media library url
     ]);
 
     $response->assertRedirect(route('allPost'));
@@ -452,5 +456,3 @@ test('can update a post using a pre-existing media library URL for the featured 
     // Clean up
     @unlink($fullPath);
 });
-
-

@@ -24,9 +24,22 @@ class HomeController extends Controller
 
         $trendingPosts = Post::with(['category', 'author'])
             ->published()
+            ->where('is_trending', true)
             ->orderByDesc('view_count')
             ->limit(4)
             ->get();
+
+        if ($trendingPosts->count() < 4) {
+            $excludeIds = $trendingPosts->pluck('id')->toArray();
+            $fillCount = 4 - $trendingPosts->count();
+            $fallbackPosts = Post::with(['category', 'author'])
+                ->published()
+                ->whereNotIn('id', $excludeIds)
+                ->orderByDesc('view_count')
+                ->limit($fillCount)
+                ->get();
+            $trendingPosts = $trendingPosts->concat($fallbackPosts);
+        }
 
         $heroPost = Post::with(['category', 'author'])
             ->published()
@@ -335,7 +348,11 @@ class HomeController extends Controller
         $post = Post::with(['category.parent', 'author'])
             ->published()
             ->where('slug', $slug)
-            ->firstOrFail();
+            ->first();
+
+        if (! $post) {
+            return $this->categoryDetails($slug);
+        }
 
         $viewed = session()->get('viewed_posts', []);
         if (! in_array($post->id, $viewed)) {
@@ -346,10 +363,22 @@ class HomeController extends Controller
         $trendingPosts = Post::with(['category', 'author'])
             ->published()
             ->where('id', '!=', $post->id)
+            ->where('is_trending', true)
             ->orderByDesc('view_count')
-            ->latest()
             ->limit(4)
             ->get();
+
+        if ($trendingPosts->count() < 4) {
+            $excludeIds = $trendingPosts->pluck('id')->push($post->id)->toArray();
+            $fillCount = 4 - $trendingPosts->count();
+            $fallbackPosts = Post::with(['category', 'author'])
+                ->published()
+                ->whereNotIn('id', $excludeIds)
+                ->orderByDesc('view_count')
+                ->limit($fillCount)
+                ->get();
+            $trendingPosts = $trendingPosts->concat($fallbackPosts);
+        }
 
         $homeCategories = Category::whereNull('parent_id')
             ->with(['children' => function ($query) {

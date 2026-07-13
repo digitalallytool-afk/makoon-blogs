@@ -292,45 +292,52 @@ button {
       transparent 40%
     ),
     linear-gradient(180deg, var(--white) 0%, var(--blush) 100%);
-  padding: clamp(4rem, 6vw, 6.5rem) 0;
+  padding: clamp(1rem, 2.5vw, 2.5rem) 0;
 }
 
 .hero-grid {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
-  gap: clamp(2rem, 5vw, 5rem);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
   align-items: center;
 }
 
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.65rem;
   color: var(--makoons-ink-accent);
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   background: var(--makoons-ink-glow);
-  padding: 0.35rem 0.85rem;
+  padding: 0.25rem 0.75rem;
   border-radius: 999px;
 }
 
 .hero-copy-block h1 {
   margin: 0;
-  font-size: clamp(2.4rem, 4.5vw, 4.2rem);
-  line-height: 1.1;
+  font-size: clamp(1.6rem, 2.8vw, 2.5rem);
+  line-height: 1.15;
   font-weight: 700;
   letter-spacing: -0.024em;
   color: var(--ink);
 }
 
 .hero-copy-block p {
-  margin: 1.25rem 0 0;
+  margin: 0.65rem 0 0;
   color: var(--soft-ink);
-  font-size: clamp(1rem, 1.4vw, 1.15rem);
-  line-height: 1.7;
+  font-size: clamp(0.88rem, 1vw, 0.96rem);
+  line-height: 1.6;
   font-weight: 500;
+}
+
+.hero-copy-block .primary-link {
+  margin-top: 1rem;
+  min-height: 46px;
+  padding: 0 1.5rem;
+  font-size: 0.9rem;
 }
 
 .hero-stats {
@@ -393,9 +400,10 @@ button {
 
 .hero-media {
   position: relative;
-  aspect-ratio: 1.15 / 1;
-  border: 12px solid var(--white);
-  border-radius: 32px;
+  aspect-ratio: 1.75 / 1;
+  max-height: 290px;
+  border: 8px solid var(--white);
+  border-radius: 24px;
   box-shadow: var(--shadow-lg);
   background-image:
     linear-gradient(
@@ -3068,23 +3076,23 @@ body.search-open {
 
 .editor-note {
   max-width: 520px;
-  margin-top: 1.8rem;
-  padding-top: 1rem;
+  margin-top: 1rem;
+  padding-top: 0.85rem;
   border-top: 1px solid rgba(34, 34, 34, 0.12);
 }
 
 .editor-note span {
   display: block;
   color: var(--airbnb-text, var(--ink));
-  font-size: 0.86rem;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
 .editor-note p {
-  margin: 0.35rem 0 0;
+  margin: 0.25rem 0 0;
   color: var(--airbnb-muted, var(--muted));
-  font-size: 0.96rem;
-  line-height: 1.55;
+  font-size: 0.88rem;
+  line-height: 1.5;
 }
 
 .featured-slider-section {

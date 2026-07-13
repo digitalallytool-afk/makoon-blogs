@@ -174,12 +174,20 @@
                                     <span class="font-weight-bold text-dark" id="status-label">{{ ucfirst(old('status', $post->status)) }}</span>
                                 </div>
                                 <!-- Selected Blog Option -->
-                                <div class="form-check form-switch mb-0" style="padding-left: 2.5em;">
+                                <div class="form-check form-switch mb-3" style="padding-left: 2.5em;">
                                     <input class="form-check-input" type="checkbox" id="post-is-selected" name="is_selected" value="1" {{ old('is_selected', $post->is_selected) ? 'checked' : '' }}>
                                     <label class="form-check-label font-weight-bold text-dark font-13" for="post-is-selected">
                                         Selected Blog
                                     </label>
                                     <small class="text-muted d-block font-11 mt-1">Show this blog post in the homepage "Selected blogs" slider.</small>
+                                </div>
+                                <!-- Trending Blog Option -->
+                                <div class="form-check form-switch mb-0" style="padding-left: 2.5em;">
+                                    <input class="form-check-input" type="checkbox" id="post-is-trending" name="is_trending" value="1" {{ old('is_trending', $post->is_trending) ? 'checked' : '' }}>
+                                    <label class="form-check-label font-weight-bold text-dark font-13" for="post-is-trending">
+                                        Trending Blog
+                                    </label>
+                                    <small class="text-muted d-block font-11 mt-1">Show this blog post in the homepage "Trending blogs" section manually.</small>
                                 </div>
                             </div>
                             <div class="card-footer bg-light-subtle p-3 border-top-0">

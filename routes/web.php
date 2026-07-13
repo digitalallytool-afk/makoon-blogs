@@ -301,13 +301,12 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/blogs/about-us', [HomeController::class, 'about'])->name('about');
+Route::get('/about-us', [HomeController::class, 'about'])->name('about');
 Route::get('/blogs', [HomeController::class, 'index'])->name('blogs.home');
-Route::get('/blogs/all-blogs', [HomeController::class, 'blogs'])->name('blogs');
+Route::get('/all-blogs', [HomeController::class, 'blogs'])->name('blogs');
 Route::get('/stories', [HomeController::class, 'stories'])->name('stories');
 Route::get('/printables', [HomeController::class, 'printables'])->name('printables');
 Route::get('/sessions', [HomeController::class, 'sessions'])->name('sessions');
-Route::get('/blogs/{slug}', [HomeController::class, 'blogDetails'])->name('blog.show');
 Route::get('/stories/{slug}', [HomeController::class, 'storyDetails'])->name('story.show');
 Route::get('/author', [HomeController::class, 'author'])->name('author');
 Route::get('/author-sana-kapoor', [HomeController::class, 'authorSana'])->name('author.sana');
@@ -369,4 +368,5 @@ Route::get('/author.html', function () {
 
 require __DIR__.'/auth.php';
 
-Route::get('{slug}', [HomeController::class, 'categoryDetails'])->name('category.show');
+Route::get('/{slug}', [HomeController::class, 'blogDetails'])->name('blog.show');
+Route::get('/{category_slug}', [HomeController::class, 'blogDetails'])->name('category.show');

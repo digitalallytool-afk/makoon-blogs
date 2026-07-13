@@ -19,6 +19,7 @@ class Post extends Model
         'view_count',
         'status',
         'is_selected',
+        'is_trending',
         'meta_title',
         'meta_description',
         'meta_keywords',
@@ -32,6 +33,7 @@ class Post extends Model
     {
         return [
             'is_selected' => 'boolean',
+            'is_trending' => 'boolean',
         ];
     }
 
