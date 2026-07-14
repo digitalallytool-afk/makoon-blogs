@@ -5,13 +5,12 @@ namespace Database\Seeders;
 use App\Models\Author;
 use App\Models\Category;
 use App\Models\Post;
-use App\Models\StoryCategory;
-use App\Models\Story;
 use App\Models\Printable;
 use App\Models\SessionCategory;
+use App\Models\Story;
+use App\Models\StoryCategory;
 use App\Models\VideoSession;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class PostSeeder extends Seeder
 {
@@ -68,46 +67,26 @@ class PostSeeder extends Seeder
         );
 
         // 3. Create Authors
-        $authorsData = [
-            'Mira Sharma' => [
-                'image' => 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80',
-                'description' => 'Mira Sharma is a child development specialist with 10 years of experience helping children adapt to preschool life.'
-            ],
-            'Neha Batra' => [
-                'image' => 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=120&q=80',
-                'description' => 'Neha Batra focuses on family transitions, school mornings, and helping parents build calm home environments.'
-            ],
-            'Riya Sen' => [
-                'image' => 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80',
-                'description' => 'Riya Sen specializes in play-based learning, childhood creativity, and emotional support routines.'
-            ],
-            'Aarav Mehta' => [
+        $pranav = Author::updateOrCreate(
+            ['name' => 'Pranav Bhatia'],
+            [
                 'image' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80',
-                'description' => 'Aarav Mehta coordinates daycare programs, optimizing sleep schedules, meals, and comforting care routines.'
-            ],
-            'Sana Kapoor' => [
-                'image' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
-                'description' => 'Sana writes about food, comfort routines, and the small practical choices that help preschool children settle into school life with more ease.'
-            ],
-            'Activity team' => [
-                'image' => 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80',
-                'description' => 'Our internal Activity Team compiles curriculum extensions, crafts, and interactive home games.'
-            ],
-            'Kabir Anand' => [
+                'description' => 'Pranav Bhatia is a child development specialist and educator.',
+            ]
+        );
+        $premanand = Author::updateOrCreate(
+            ['name' => 'Premanand'],
+            [
                 'image' => 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=120&q=80',
-                'description' => 'Kabir Anand focuses on early literacy, shared reading rituals, and building lifelong learning habits.'
-            ],
-        ];
+                'description' => 'Premanand focuses on early childhood literacy and family transitions.',
+            ]
+        );
 
+        $pool = [$pranav, $premanand];
         $authors = [];
-        foreach ($authorsData as $name => $info) {
-            $authors[$name] = Author::updateOrCreate(
-                ['name' => $name],
-                [
-                    'image' => $info['image'],
-                    'description' => $info['description']
-                ]
-            );
+        $authorsList = ['Mira Sharma', 'Neha Batra', 'Riya Sen', 'Aarav Mehta', 'Sana Kapoor', 'Activity team', 'Kabir Anand'];
+        foreach ($authorsList as $name) {
+            $authors[$name] = $pool[array_rand($pool)];
         }
 
         // 4. Create Posts
@@ -122,7 +101,7 @@ class PostSeeder extends Seeder
                 'category_id' => $preschool->id,
                 'author_id' => $authors['Mira Sharma']->id,
                 'view_count' => 2400,
-                'created_at' => '2026-06-12 09:00:00'
+                'created_at' => '2026-06-12 09:00:00',
             ],
             [
                 'title' => 'What helps children feel at home in a new classroom',
@@ -133,7 +112,7 @@ class PostSeeder extends Seeder
                 'category_id' => $preschool->id,
                 'author_id' => $authors['Neha Batra']->id,
                 'view_count' => 1280,
-                'created_at' => '2026-06-08 10:00:00'
+                'created_at' => '2026-06-08 10:00:00',
             ],
             [
                 'title' => 'What children learn when they repeat the same game',
@@ -144,7 +123,7 @@ class PostSeeder extends Seeder
                 'category_id' => $play->id,
                 'author_id' => $authors['Riya Sen']->id,
                 'view_count' => 1200,
-                'created_at' => '2026-05-28 11:00:00'
+                'created_at' => '2026-05-28 11:00:00',
             ],
 
             // Daycare Routines
@@ -157,7 +136,7 @@ class PostSeeder extends Seeder
                 'category_id' => $daycare->id,
                 'author_id' => $authors['Aarav Mehta']->id,
                 'view_count' => 1800,
-                'created_at' => '2026-06-10 14:00:00'
+                'created_at' => '2026-06-10 14:00:00',
             ],
             [
                 'title' => 'Simple lunchbox ideas for the first month of school',
@@ -168,7 +147,7 @@ class PostSeeder extends Seeder
                 'category_id' => $food->id,
                 'author_id' => $authors['Sana Kapoor']->id,
                 'view_count' => 1500,
-                'created_at' => '2026-06-04 12:00:00'
+                'created_at' => '2026-06-04 12:00:00',
             ],
             [
                 'title' => 'What children need from a long daycare day',
@@ -179,7 +158,7 @@ class PostSeeder extends Seeder
                 'category_id' => $daycare->id,
                 'author_id' => $authors['Aarav Mehta']->id,
                 'view_count' => 814,
-                'created_at' => '2026-05-22 13:00:00'
+                'created_at' => '2026-05-22 13:00:00',
             ],
 
             // Parenting Guides
@@ -192,7 +171,7 @@ class PostSeeder extends Seeder
                 'category_id' => $parenting->id,
                 'author_id' => $authors['Neha Batra']->id,
                 'view_count' => 946,
-                'created_at' => '2026-05-18 08:30:00'
+                'created_at' => '2026-05-18 08:30:00',
             ],
             [
                 'title' => 'When children do not have the words yet',
@@ -203,7 +182,7 @@ class PostSeeder extends Seeder
                 'category_id' => $parenting->id,
                 'author_id' => $authors['Mira Sharma']->id,
                 'view_count' => 604,
-                'created_at' => '2026-05-10 16:00:00'
+                'created_at' => '2026-05-10 16:00:00',
             ],
             [
                 'title' => 'Helping children handle big feelings in small steps',
@@ -214,7 +193,7 @@ class PostSeeder extends Seeder
                 'category_id' => $parenting->id,
                 'author_id' => $authors['Riya Sen']->id,
                 'view_count' => 690,
-                'created_at' => '2026-04-26 15:00:00'
+                'created_at' => '2026-04-26 15:00:00',
             ],
 
             // Home Activities
@@ -227,7 +206,7 @@ class PostSeeder extends Seeder
                 'category_id' => $activities->id,
                 'author_id' => $authors['Activity team']->id,
                 'view_count' => 629,
-                'created_at' => '2026-06-02 11:30:00'
+                'created_at' => '2026-06-02 11:30:00',
             ],
             [
                 'title' => 'Weekend play that does not need a shopping list',
@@ -238,7 +217,7 @@ class PostSeeder extends Seeder
                 'category_id' => $activities->id,
                 'author_id' => $authors['Riya Sen']->id,
                 'view_count' => 732,
-                'created_at' => '2026-05-16 10:00:00'
+                'created_at' => '2026-05-16 10:00:00',
             ],
             [
                 'title' => 'The reading habit that matters most is showing up',
@@ -249,7 +228,7 @@ class PostSeeder extends Seeder
                 'category_id' => $activities->id,
                 'author_id' => $authors['Kabir Anand']->id,
                 'view_count' => 689,
-                'created_at' => '2026-05-02 14:00:00'
+                'created_at' => '2026-05-02 14:00:00',
             ],
         ];
 
@@ -263,10 +242,10 @@ class PostSeeder extends Seeder
                     'featured_image' => $post['featured_image'],
                     'category_id' => $post['category_id'],
                     'author_id' => $post['author_id'],
-                    'view_count' => $post['view_count'],
+                    'view_count' => rand(10000, 99000),
                     'status' => 'published',
                     'created_at' => $post['created_at'],
-                    'updated_at' => $post['created_at']
+                    'updated_at' => $post['created_at'],
                 ]
             );
         }
@@ -317,7 +296,7 @@ class PostSeeder extends Seeder
                 'story_category_id' => $storyCat4->id,
                 'author_id' => $authors['Neha Batra']->id,
                 'view_count' => 1100,
-            ]
+            ],
         ];
 
         foreach ($storiesData as $story) {
@@ -330,8 +309,8 @@ class PostSeeder extends Seeder
                     'featured_image' => $story['featured_image'],
                     'story_category_id' => $story['story_category_id'],
                     'author_id' => $story['author_id'],
-                    'view_count' => $story['view_count'],
-                    'status' => 'published'
+                    'view_count' => rand(10000, 99000),
+                    'status' => 'published',
                 ]
             );
         }
@@ -391,7 +370,7 @@ class PostSeeder extends Seeder
                     'file_name' => $printable['file_name'],
                     'file_size' => $printable['file_size'],
                     'download_count' => $printable['download_count'],
-                    'status' => 'published'
+                    'status' => 'published',
                 ]
             );
         }
@@ -425,7 +404,7 @@ class PostSeeder extends Seeder
                 'video_url' => 'https://www.youtube.com/embed/Il7t8iqOQ7M',
                 'image' => 'session-three',
                 'session_category_id' => $sessCat3->id,
-            ]
+            ],
         ];
 
         foreach ($sessionsData as $sess) {
@@ -437,7 +416,7 @@ class PostSeeder extends Seeder
                     'video_url' => $sess['video_url'],
                     'image' => $sess['image'],
                     'session_category_id' => $sess['session_category_id'],
-                    'status' => 'published'
+                    'status' => 'published',
                 ]
             );
         }
