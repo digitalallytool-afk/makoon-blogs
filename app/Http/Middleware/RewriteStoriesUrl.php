@@ -33,6 +33,10 @@ class RewriteStoriesUrl
                         $content = str_replace('action="/blogs/'.$section, 'action="/'.$section, $content);
                     }
 
+                    // Dynamically rewrite uploads/ to public/uploads/ for manual blog content images
+                    $content = str_replace('/blogs/public/uploads/', '/blogs/uploads/', $content);
+                    $content = str_replace('/blogs/uploads/', '/blogs/public/uploads/', $content);
+
                     $original = $response->original ?? null;
                     $response->setContent($content);
                     if ($original !== null) {
