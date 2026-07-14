@@ -5,6 +5,10 @@
 
     RewriteEngine On
 
+    # Redirect /blogs/stories to /stories externally to keep URLs clean
+    RewriteCond %{THE_REQUEST} \s/blogs/stories [NC]
+    RewriteRule ^stories(/(.*))?$ /stories/$2 [R=301,L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

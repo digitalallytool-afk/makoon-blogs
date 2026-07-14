@@ -23,12 +23,15 @@ class RewriteStoriesUrl
                 $appUrl = rtrim(config('app.url') ?? '', '/');
 
                 if ($appUrl !== '') {
-                    $oldUrl = $appUrl.'/stories';
-                    $newUrl = str_replace('/blogs', '', $appUrl).'/stories';
+                    $sections = ['stories', 'printables', 'sessions'];
+                    foreach ($sections as $section) {
+                        $oldUrl = $appUrl.'/'.$section;
+                        $newUrl = str_replace('/blogs', '', $appUrl).'/'.$section;
 
-                    $content = str_replace($oldUrl, $newUrl, $content);
-                    $content = str_replace('href="/blogs/stories', 'href="/stories', $content);
-                    $content = str_replace('action="/blogs/stories', 'action="/stories', $content);
+                        $content = str_replace($oldUrl, $newUrl, $content);
+                        $content = str_replace('href="/blogs/'.$section, 'href="/'.$section, $content);
+                        $content = str_replace('action="/blogs/'.$section, 'action="/'.$section, $content);
+                    }
 
                     $original = $response->original ?? null;
                     $response->setContent($content);
