@@ -77,4 +77,16 @@ class Post extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
+    /**
+     * Get the post's canonical URL, cleaning any duplicate /blogs/ segments.
+     */
+    public function getCanonicalUrlAttribute($value)
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        return str_replace('/blogs/blogs/', '/blogs/', $value);
+    }
 }
