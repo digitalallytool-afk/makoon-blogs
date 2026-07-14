@@ -368,5 +368,23 @@ Route::get('/author.html', function () {
 
 require __DIR__.'/auth.php';
 
+Route::get('/sitemap.xml', function () {
+    $path = public_path('sitemap.xml');
+    if (file_exists($path)) {
+        return response(file_get_contents($path), 200)
+            ->header('Content-Type', 'application/xml');
+    }
+    abort(404);
+});
+
+Route::get('/robots.txt', function () {
+    $path = public_path('robots.txt');
+    if (file_exists($path)) {
+        return response(file_get_contents($path), 200)
+            ->header('Content-Type', 'text/plain');
+    }
+    abort(404);
+});
+
 Route::get('/{slug}', [HomeController::class, 'blogDetails'])->name('blog.show');
 Route::get('/{category_slug}', [HomeController::class, 'blogDetails'])->name('category.show');
