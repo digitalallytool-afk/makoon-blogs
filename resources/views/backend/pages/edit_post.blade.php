@@ -182,12 +182,21 @@
                                     <small class="text-muted d-block font-11 mt-1">Show this blog post in the homepage "Selected blogs" slider.</small>
                                 </div>
                                 <!-- Trending Blog Option -->
-                                <div class="form-check form-switch mb-0" style="padding-left: 2.5em;">
+                                <div class="form-check form-switch mb-3" style="padding-left: 2.5em;">
                                     <input class="form-check-input" type="checkbox" id="post-is-trending" name="is_trending" value="1" {{ old('is_trending', $post->is_trending) ? 'checked' : '' }}>
                                     <label class="form-check-label font-weight-bold text-dark font-13" for="post-is-trending">
                                         Trending Blog
                                     </label>
                                     <small class="text-muted d-block font-11 mt-1">Show this blog post in the homepage "Trending blogs" section manually.</small>
+                                </div>
+                                <!-- View Count -->
+                                <div class="mb-0">
+                                    <label class="form-label font-weight-bold text-dark font-13" for="post-view-count">View Count</label>
+                                    <input type="number" class="form-control font-13 @error('view_count') is-invalid @enderror" id="post-view-count" name="view_count" value="{{ old('view_count', $post->view_count) }}" min="0">
+                                    @error('view_count')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                    <small class="text-muted d-block font-11 mt-1">Specify view count for this blog.</small>
                                 </div>
                             </div>
                             <div class="card-footer bg-light-subtle p-3 border-top-0">

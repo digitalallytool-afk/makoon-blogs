@@ -172,6 +172,15 @@
                                     <span class="text-secondary">Status: </span>
                                     <span class="font-weight-bold text-dark" id="status-label">Published</span>
                                 </div>
+                                <!-- View Count -->
+                                <div class="mb-0">
+                                    <label class="form-label font-weight-bold text-dark font-13" for="story-view-count">View Count</label>
+                                    <input type="number" class="form-control font-13 @error('view_count') is-invalid @enderror" id="story-view-count" name="view_count" value="{{ old('view_count', 0) }}" min="0">
+                                    @error('view_count')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                    <small class="text-muted d-block font-11 mt-1">Specify initial view count for this story.</small>
+                                </div>
                             </div>
                             <div class="card-footer bg-light-subtle p-3 border-top-0">
                                 <div class="d-flex flex-wrap gap-1 align-items-center">

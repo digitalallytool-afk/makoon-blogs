@@ -160,6 +160,7 @@ class AdminController extends Controller
             'featured_image_url' => 'nullable|string',
             'is_selected' => 'nullable|boolean',
             'is_trending' => 'nullable|boolean',
+            'view_count' => 'nullable|integer|min:0',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
             'meta_keywords' => 'nullable|string|max:500',
@@ -196,7 +197,7 @@ class AdminController extends Controller
             'featured_image' => $imagePath,
             'is_selected' => $request->boolean('is_selected'),
             'is_trending' => $request->boolean('is_trending'),
-            'view_count' => 0,
+            'view_count' => $request->integer('view_count', 0),
             'meta_title' => $validated['meta_title'] ?? null,
             'meta_description' => $validated['meta_description'] ?? null,
             'meta_keywords' => $validated['meta_keywords'] ?? null,
@@ -285,6 +286,7 @@ class AdminController extends Controller
             'featured_image_url' => 'nullable|string',
             'is_selected' => 'nullable|boolean',
             'is_trending' => 'nullable|boolean',
+            'view_count' => 'nullable|integer|min:0',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
             'meta_keywords' => 'nullable|string|max:500',
@@ -328,6 +330,7 @@ class AdminController extends Controller
         $post->author_id = $validated['author_id'];
         $post->is_selected = $request->boolean('is_selected');
         $post->is_trending = $request->boolean('is_trending');
+        $post->view_count = $request->integer('view_count', 0);
         $post->meta_title = $validated['meta_title'] ?? null;
         $post->meta_description = $validated['meta_description'] ?? null;
         $post->meta_keywords = $validated['meta_keywords'] ?? null;
@@ -1029,6 +1032,7 @@ class AdminController extends Controller
             'author_id' => 'required|exists:authors,id',
             'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'featured_image_url' => 'nullable|string',
+            'view_count' => 'nullable|integer|min:0',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
             'meta_keywords' => 'nullable|string|max:500',
@@ -1063,7 +1067,7 @@ class AdminController extends Controller
             'story_category_id' => $validated['story_category_id'],
             'author_id' => $validated['author_id'],
             'featured_image' => $imagePath,
-            'view_count' => 0,
+            'view_count' => $request->integer('view_count', 0),
             'meta_title' => $validated['meta_title'] ?? null,
             'meta_description' => $validated['meta_description'] ?? null,
             'meta_keywords' => $validated['meta_keywords'] ?? null,
@@ -1115,6 +1119,7 @@ class AdminController extends Controller
             'author_id' => 'required|exists:authors,id',
             'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
             'featured_image_url' => 'nullable|string',
+            'view_count' => 'nullable|integer|min:0',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
             'meta_keywords' => 'nullable|string|max:500',
@@ -1156,6 +1161,7 @@ class AdminController extends Controller
         $story->status = $validated['status'];
         $story->story_category_id = $validated['story_category_id'];
         $story->author_id = $validated['author_id'];
+        $story->view_count = $request->integer('view_count', 0);
         $story->meta_title = $validated['meta_title'] ?? null;
         $story->meta_description = $validated['meta_description'] ?? null;
         $story->meta_keywords = $validated['meta_keywords'] ?? null;
