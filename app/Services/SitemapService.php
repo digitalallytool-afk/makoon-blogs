@@ -44,6 +44,7 @@ class SitemapService
             ->get();
 
         $baseUrl = rtrim(config('app.url'), '/');
+        $baseDomainUrl = str_replace('/blogs', '', $baseUrl);
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"'."\n";
@@ -53,10 +54,10 @@ class SitemapService
         $xml .= $this->buildUrlEntry($baseUrl.'/', now()->toAtomString(), 'daily', '1.0');
 
         // Static library / section pages
-        $xml .= $this->buildUrlEntry($baseUrl.'/blogs', now()->toAtomString(), 'daily', '0.9');
-        $xml .= $this->buildUrlEntry($baseUrl.'/stories', now()->toAtomString(), 'daily', '0.9');
-        $xml .= $this->buildUrlEntry($baseUrl.'/printables', now()->toAtomString(), 'weekly', '0.8');
-        $xml .= $this->buildUrlEntry($baseUrl.'/sessions', now()->toAtomString(), 'weekly', '0.8');
+        $xml .= $this->buildUrlEntry($baseUrl, now()->toAtomString(), 'daily', '0.9');
+        $xml .= $this->buildUrlEntry($baseDomainUrl.'/stories', now()->toAtomString(), 'daily', '0.9');
+        $xml .= $this->buildUrlEntry($baseDomainUrl.'/printables', now()->toAtomString(), 'weekly', '0.8');
+        $xml .= $this->buildUrlEntry($baseDomainUrl.'/sessions', now()->toAtomString(), 'weekly', '0.8');
         $xml .= $this->buildUrlEntry($baseUrl.'/about-us', now()->toAtomString(), 'monthly', '0.6');
         $xml .= $this->buildUrlEntry($baseUrl.'/author-sana-kapoor', now()->toAtomString(), 'monthly', '0.6');
 
@@ -78,7 +79,7 @@ class SitemapService
         foreach ($stories as $story) {
             $canonical = $story->canonical_url
                 ? rtrim($story->canonical_url, '/')
-                : $baseUrl.'/stories/'.$story->slug;
+                : $baseDomainUrl.'/stories/'.$story->slug;
 
             $xml .= $this->buildUrlEntry(
                 $canonical,
@@ -91,7 +92,7 @@ class SitemapService
         // Add Printables
         foreach ($printables as $printable) {
             $xml .= $this->buildUrlEntry(
-                $baseUrl.'/printables/'.$printable->slug,
+                $baseDomainUrl.'/printables/'.$printable->slug,
                 $printable->updated_at->toAtomString(),
                 'weekly',
                 '0.8'
@@ -101,7 +102,7 @@ class SitemapService
         // Add Video Sessions
         foreach ($videoSessions as $videoSession) {
             $xml .= $this->buildUrlEntry(
-                $baseUrl.'/video-sessions/'.$videoSession->slug,
+                $baseDomainUrl.'/video-sessions/'.$videoSession->slug,
                 $videoSession->updated_at->toAtomString(),
                 'weekly',
                 '0.8'

@@ -74,6 +74,8 @@ class Story extends Model
             return null;
         }
 
-        return str_replace('/blogs/blogs/', '/blogs/', $value);
+        // Clean /blogs/stories/ to /stories/ and any /blogs/blogs/ to /blogs/
+        $cleaned = str_replace('/blogs/stories/', '/stories/', $value);
+        return str_replace('/blogs/blogs/', '/blogs/', $cleaned);
     }
 }
