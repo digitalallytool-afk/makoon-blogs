@@ -5,6 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Makoons Blogs')</title>
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('uploads/2026/06/favicon.png') }}" type="image/png" />
     <meta name="description"
         content="@yield('meta_description', 'Makoons Blogs for preschool, daycare, parenting, activities, and early learning blog posts.')">
     @hasSection('meta_keywords')

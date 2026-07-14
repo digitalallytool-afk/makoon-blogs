@@ -42,12 +42,12 @@
             <div class="navbar-collapse" id="mainNav">
                 <ul class="navbar-nav">
                     <li><a class="nav-link {{ Route::is('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a></li>
-                    <li><a class="nav-link {{ Route::is('about') ? 'active' : '' }}" href="{{ route('about') }}">About us</a></li>
+                    <li><a class="nav-link" href="https://makoons.com/about-us">About us</a></li>
                     <li><a class="nav-link {{ Route::is('blogs') || Route::is('blog.show') || Route::is('blog.details') ? 'active' : '' }}" href="{{ route('blogs') }}">Blogs</a></li>
                     <li><a class="nav-link {{ Route::is('stories') ? 'active' : '' }}" href="{{ route('stories') }}">Stories</a></li>
                     <li><a class="nav-link {{ Route::is('printables') ? 'active' : '' }}" href="{{ route('printables') }}">Printables</a></li>
                     <li><a class="nav-link {{ Route::is('sessions') ? 'active' : '' }}" href="{{ route('sessions') }}">Sessions</a></li>
-                    <li><a class="nav-link" href="#contact">Contact</a></li>
+                    <li><a class="nav-link" href="https://makoons.com/contact-us">Contact</a></li>
                     <li><button class="search-button" type="button" aria-label="Open search" aria-expanded="false"
                             data-search-open><svg aria-hidden="true" viewBox="0 0 24 24">
                                 <path
