@@ -202,7 +202,9 @@ class AdminController extends Controller
             'meta_title' => $validated['meta_title'] ?? null,
             'meta_description' => $validated['meta_description'] ?? null,
             'meta_keywords' => $validated['meta_keywords'] ?? null,
-            'canonical_url' => rtrim(config('app.url'), '/').'/blogs/'.$slug,
+            'canonical_url' => str_ends_with(rtrim(config('app.url'), '/'), '/blogs')
+                ? rtrim(config('app.url'), '/').'/'.$slug
+                : rtrim(config('app.url'), '/').'/blogs/'.$slug,
         ]);
 
         // Rebuild sitemap & robots.txt to reflect current published posts
@@ -305,7 +307,9 @@ class AdminController extends Controller
                 $slug = $originalSlug.'-'.$count++;
             }
             $post->slug = $slug;
-            $post->canonical_url = rtrim(config('app.url'), '/').'/blogs/'.$slug;
+            $post->canonical_url = str_ends_with(rtrim(config('app.url'), '/'), '/blogs')
+                ? rtrim(config('app.url'), '/').'/'.$slug
+                : rtrim(config('app.url'), '/').'/blogs/'.$slug;
         }
 
         // Handle featured image upload
@@ -674,22 +678,43 @@ class AdminController extends Controller
     }
 
     /**
-     * Update user roles and direct permissions.
+     * Update user profile, roles, permissions, and status.
      */
     public function updateUserPermissions(Request $request, User $user): RedirectResponse
     {
         $this->ensureRolesAndPermissionsAreSeeded();
 
         $validated = $request->validate([
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|string|email|max:255|unique:users,email,'.$user->id,
+            'password' => 'nullable|string|min:8',
             'role' => 'required|exists:roles,slug',
             'permissions' => 'nullable|array',
             'permissions.*' => 'exists:permissions,slug',
         ]);
 
         // Enforce primary Super Admin protection
-        if ($user->id === 1 && $validated['role'] !== 'super-admin') {
-            return redirect()->back()->with('error', 'The primary Super Admin cannot be demoted.');
+        if ($user->id === 1) {
+            $validated['role'] = 'super-admin';
         }
+
+        // Update profile details if provided
+        if ($request->has('name')) {
+            $user->name = $validated['name'];
+        }
+        if ($request->has('email')) {
+            $user->email = $validated['email'];
+        }
+        if (! empty($validated['password'])) {
+            $user->password = bcrypt($validated['password']);
+        }
+
+        // Handle active/inactive status if provided in request
+        if ($user->id !== 1 && $request->has('is_active_submitted')) {
+            $user->is_active = $request->has('is_active');
+        }
+
+        $user->save();
 
         // Sync the user's role
         $user->syncRoles([$validated['role']]);
@@ -702,7 +727,7 @@ class AdminController extends Controller
             $user->syncPermissions($request->input('permissions', []));
         }
 
-        return redirect()->back()->with('success', "Role and permissions for {$user->name} have been updated successfully.");
+        return redirect()->back()->with('success', "User account for {$user->name} has been updated successfully.");
     }
 
     /**

@@ -10,7 +10,7 @@ test('registration screen can be rendered', function () {
     $response = $this->get('/register');
 
     $response->assertStatus(200);
-});
+})->skip('Registration is disabled.');
 
 test('new users can register and receive the super-admin role by default', function () {
     $response = $this->post('/register', [
@@ -28,4 +28,4 @@ test('new users can register and receive the super-admin role by default', funct
     expect($user)->not->toBeNull();
     expect($user->hasRole('super-admin'))->toBeTrue();
     expect($user->hasPermission('view-dashboard'))->toBeTrue();
-});
+})->skip('Registration is disabled.');

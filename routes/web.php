@@ -281,7 +281,7 @@ Route::middleware('auth')->group(function () {
         ->name('users.store')
         ->middleware('can:manage-users');
 
-    // Update User Roles and Permissions (accessible with manage-users gate - Super Admin only)
+    // Update User Profile, Roles, Permissions, and Status (accessible with manage-users gate - Super Admin only)
     Route::post('/users/{user}/permissions', [AdminController::class, 'updateUserPermissions'])
         ->name('users.permissions')
         ->middleware('can:manage-users');

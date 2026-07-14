@@ -46,9 +46,6 @@
                                             <div class="col-12">
                                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                                     <label for="password" class="form-label font-weight-bold text-secondary font-12 text-uppercase mb-0">Password</label>
-                                                    @if (Route::has('password.request'))
-                                                        <a href="{{ route('password.request') }}" class="font-12 text-primary text-decoration-none">Forgot Password?</a>
-                                                    @endif
                                                 </div>
                                                 <div class="input-group" id="show_hide_password">
                                                     <span class="input-group-text bg-transparent"><i class="bx bx-lock"></i></span>
@@ -71,10 +68,6 @@
                                             <!-- Submit Button -->
                                             <div class="col-12 mt-4">
                                                 <button type="submit" class="btn btn-primary w-100 radius-30 font-weight-bold"><i class="bx bxs-lock-open me-1"></i>Sign In</button>
-                                            </div>
-
-                                            <div class="col-12 text-center mt-3">
-                                                <p class="mb-0 text-secondary font-13">Don't have an account? <a href="{{ route('register') }}" class="text-primary font-weight-bold text-decoration-none">Create Account</a></p>
                                             </div>
                                         </form>
                                     </div>

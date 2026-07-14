@@ -58,6 +58,7 @@
                                     <th>Email</th>
                                     <th>Assigned Role</th>
                                     <th>Permissions Status</th>
+                                    <th>Status</th>
                                     <th class="text-end">Actions</th>
                                 </tr>
                             </thead>
@@ -92,6 +93,13 @@
                                                 </span>
                                             @endif
                                         </td>
+                                        <td>
+                                            @if($user->is_active)
+                                                <span class="badge bg-light-success text-success px-3 py-1 radius-30 font-12">Active</span>
+                                            @else
+                                                <span class="badge bg-light-danger text-danger px-3 py-1 radius-30 font-12">Inactive</span>
+                                            @endif
+                                        </td>
                                         <td class="text-end">
                                             <button type="button" class="btn btn-outline-primary btn-sm radius-30 px-3 font-weight-bold" data-bs-toggle="modal" data-bs-target="#editPermissionsModal-{{ $user->id }}">
                                                 <i class="bx bx-edit-alt me-1"></i>Configure
@@ -114,14 +122,37 @@
                                             <div class="modal-content text-start">
                                                 <form action="{{ route('users.permissions', $user->id) }}" method="POST">
                                                     @csrf
+                                                    <input type="hidden" name="is_active_submitted" value="1">
                                                     <div class="modal-header">
-                                                        <h5 class="modal-title font-weight-bold text-dark">Configure Role & Permissions</h5>
+                                                        <h5 class="modal-title font-weight-bold text-dark">Configure User Account Details</h5>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body p-4">
-                                                        <div class="mb-4">
-                                                            <h6 class="font-weight-bold text-secondary mb-1">User Information</h6>
-                                                            <p class="mb-0 font-14">{{ $user->name }} ({{ $user->email }})</p>
+                                                        <div class="row g-3 mb-3">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label font-weight-bold text-secondary font-12 text-uppercase mb-1">Full Name</label>
+                                                                <input type="text" name="name" class="form-control" value="{{ $user->name }}" required>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label font-weight-bold text-secondary font-12 text-uppercase mb-1">Email Address</label>
+                                                                <input type="email" name="email" class="form-control" value="{{ $user->email }}" required>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row g-3 mb-3">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label font-weight-bold text-secondary font-12 text-uppercase mb-1">New Password</label>
+                                                                <input type="password" name="password" class="form-control" placeholder="Leave blank to keep current password">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label font-weight-bold text-secondary font-12 text-uppercase mb-1">Status</label>
+                                                                <div class="form-check form-switch mt-2">
+                                                                    <input class="form-check-input" type="checkbox" name="is_active" value="1" id="active-{{ $user->id }}" {{ $user->is_active ? 'checked' : '' }} {{ $user->id === 1 ? 'disabled' : '' }}>
+                                                                    <label class="form-check-label text-dark font-weight-bold font-13" for="active-{{ $user->id }}">
+                                                                        {{ $user->id === 1 ? 'Always Active' : 'Active Account' }}
+                                                                    </label>
+                                                                </div>
+                                                            </div>
                                                         </div>
 
                                                         <div class="mb-4">
@@ -134,11 +165,9 @@
                                                             @else
                                                                 <select name="role" class="form-select user-role-select" data-user-id="{{ $user->id }}" required>
                                                                     @foreach($roles as $role)
-                                                                        @if($role->slug !== 'super-admin')
-                                                                            <option value="{{ $role->slug }}" {{ $user->hasRole($role->slug) ? 'selected' : '' }}>
-                                                                                {{ $role->name }}
-                                                                            </option>
-                                                                        @endif
+                                                                        <option value="{{ $role->slug }}" {{ $user->hasRole($role->slug) ? 'selected' : '' }}>
+                                                                            {{ $role->name }}
+                                                                        </option>
                                                                     @endforeach
                                                                 </select>
                                                             @endif
@@ -215,11 +244,14 @@
                                         <input type="password" name="password" id="create_password" class="form-control" placeholder="•••••••• (Min 8 chars)" required>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="create_role_disabled" class="form-label font-weight-bold text-secondary font-12 text-uppercase mb-1">Account Role</label>
-                                        <select name="role_disabled" id="create_role_disabled" class="form-select" disabled>
-                                            <option value="admin" selected>Admin</option>
+                                        <label for="create_role" class="form-label font-weight-bold text-secondary font-12 text-uppercase mb-1">Account Role</label>
+                                        <select name="role" id="create_role" class="form-select" required>
+                                            @foreach($roles as $role)
+                                                <option value="{{ $role->slug }}" {{ $role->slug === 'admin' ? 'selected' : '' }}>
+                                                    {{ $role->name }}
+                                                </option>
+                                            @endforeach
                                         </select>
-                                        <input type="hidden" name="role" value="admin">
                                     </div>
                                 </div>
 

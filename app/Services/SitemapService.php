@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Models\Post;
+use App\Models\Printable;
+use App\Models\Story;
+use App\Models\VideoSession;
 use Illuminate\Support\Facades\URL;
 
 class SitemapService
@@ -27,41 +30,41 @@ class SitemapService
             ->latest('updated_at')
             ->get();
 
-        $stories = \App\Models\Story::published()
+        $stories = Story::published()
             ->with('storyCategory')
             ->latest('updated_at')
             ->get();
 
-        $printables = \App\Models\Printable::published()
+        $printables = Printable::published()
             ->latest('updated_at')
             ->get();
 
-        $videoSessions = \App\Models\VideoSession::published()
+        $videoSessions = VideoSession::published()
             ->latest('updated_at')
             ->get();
 
         $baseUrl = rtrim(config('app.url'), '/');
 
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"' . "\n";
-        $xml .= '        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">' . "\n";
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"'."\n";
+        $xml .= '        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">'."\n";
 
         // Homepage
-        $xml .= $this->buildUrlEntry($baseUrl . '/', now()->toAtomString(), 'daily', '1.0');
+        $xml .= $this->buildUrlEntry($baseUrl.'/', now()->toAtomString(), 'daily', '1.0');
 
         // Static library / section pages
-        $xml .= $this->buildUrlEntry($baseUrl . '/blogs', now()->toAtomString(), 'daily', '0.9');
-        $xml .= $this->buildUrlEntry($baseUrl . '/stories', now()->toAtomString(), 'daily', '0.9');
-        $xml .= $this->buildUrlEntry($baseUrl . '/printables', now()->toAtomString(), 'weekly', '0.8');
-        $xml .= $this->buildUrlEntry($baseUrl . '/sessions', now()->toAtomString(), 'weekly', '0.8');
-        $xml .= $this->buildUrlEntry($baseUrl . '/about-us', now()->toAtomString(), 'monthly', '0.6');
-        $xml .= $this->buildUrlEntry($baseUrl . '/author-sana-kapoor', now()->toAtomString(), 'monthly', '0.6');
+        $xml .= $this->buildUrlEntry($baseUrl.'/blogs', now()->toAtomString(), 'daily', '0.9');
+        $xml .= $this->buildUrlEntry($baseUrl.'/stories', now()->toAtomString(), 'daily', '0.9');
+        $xml .= $this->buildUrlEntry($baseUrl.'/printables', now()->toAtomString(), 'weekly', '0.8');
+        $xml .= $this->buildUrlEntry($baseUrl.'/sessions', now()->toAtomString(), 'weekly', '0.8');
+        $xml .= $this->buildUrlEntry($baseUrl.'/about-us', now()->toAtomString(), 'monthly', '0.6');
+        $xml .= $this->buildUrlEntry($baseUrl.'/author-sana-kapoor', now()->toAtomString(), 'monthly', '0.6');
 
         // Add Posts
         foreach ($posts as $post) {
             $canonical = $post->canonical_url
                 ? rtrim($post->canonical_url, '/')
-                : $baseUrl . '/blogs/' . $post->slug;
+                : (str_ends_with($baseUrl, '/blogs') ? $baseUrl.'/'.$post->slug : $baseUrl.'/blogs/'.$post->slug);
 
             $xml .= $this->buildUrlEntry(
                 $canonical,
@@ -75,7 +78,7 @@ class SitemapService
         foreach ($stories as $story) {
             $canonical = $story->canonical_url
                 ? rtrim($story->canonical_url, '/')
-                : $baseUrl . '/stories/' . $story->slug;
+                : $baseUrl.'/stories/'.$story->slug;
 
             $xml .= $this->buildUrlEntry(
                 $canonical,
@@ -88,7 +91,7 @@ class SitemapService
         // Add Printables
         foreach ($printables as $printable) {
             $xml .= $this->buildUrlEntry(
-                $baseUrl . '/printables/' . $printable->slug,
+                $baseUrl.'/printables/'.$printable->slug,
                 $printable->updated_at->toAtomString(),
                 'weekly',
                 '0.8'
@@ -98,7 +101,7 @@ class SitemapService
         // Add Video Sessions
         foreach ($videoSessions as $videoSession) {
             $xml .= $this->buildUrlEntry(
-                $baseUrl . '/video-sessions/' . $videoSession->slug,
+                $baseUrl.'/video-sessions/'.$videoSession->slug,
                 $videoSession->updated_at->toAtomString(),
                 'weekly',
                 '0.8'
@@ -116,11 +119,11 @@ class SitemapService
     private function buildUrlEntry(string $loc, string $lastmod, string $changefreq, string $priority): string
     {
         return "    <url>\n"
-            . "        <loc>" . htmlspecialchars($loc) . "</loc>\n"
-            . "        <lastmod>{$lastmod}</lastmod>\n"
-            . "        <changefreq>{$changefreq}</changefreq>\n"
-            . "        <priority>{$priority}</priority>\n"
-            . "    </url>\n";
+            .'        <loc>'.htmlspecialchars($loc)."</loc>\n"
+            ."        <lastmod>{$lastmod}</lastmod>\n"
+            ."        <changefreq>{$changefreq}</changefreq>\n"
+            ."        <priority>{$priority}</priority>\n"
+            ."    </url>\n";
     }
 
     /**

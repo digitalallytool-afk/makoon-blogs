@@ -3,6 +3,7 @@
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 beforeEach(function () {
     // Run the roles and permissions seeder
@@ -117,10 +118,10 @@ test('non-super admin users cannot create a new user from the dashboard', functi
 
 test('super admin can delete other users but not self or primary super admin', function () {
     $superAdmin = User::where('email', 'admin@example.com')->first();
-    
+
     // Create a dummy user to delete
     $dummy = User::factory()->create();
-    
+
     // 1. Delete dummy user
     $response = $this->actingAs($superAdmin)->delete(route('users.destroy', $dummy->id));
     $response->assertRedirect();
@@ -148,4 +149,42 @@ test('non-super admin users cannot delete users', function () {
     $response = $this->actingAs($adminUser)->delete(route('users.destroy', $dummy->id));
     $response->assertStatus(403);
     expect(User::find($dummy->id))->not->toBeNull();
+});
+
+test('super admin can update user name, email, password, and status', function () {
+    $superAdmin = User::where('email', 'admin@example.com')->first();
+    $user = User::factory()->create(['is_active' => true]);
+
+    $response = $this->actingAs($superAdmin)->post(route('users.permissions', $user->id), [
+        'name' => 'Updated Name',
+        'email' => 'updatedemail@example.com',
+        'password' => 'newpassword123',
+        'role' => 'admin',
+        'is_active_submitted' => '1',
+    ]);
+
+    $response->assertRedirect();
+    $response->assertSessionHas('success');
+
+    $user = $user->fresh();
+    expect($user->name)->toBe('Updated Name');
+    expect($user->email)->toBe('updatedemail@example.com');
+    expect(Hash::check('newpassword123', $user->password))->toBeTrue();
+    expect($user->is_active)->toBeFalse();
+});
+
+test('inactive user cannot log in', function () {
+    $user = User::factory()->create([
+        'email' => 'inactiveuser@example.com',
+        'password' => bcrypt('password123'),
+        'is_active' => false,
+    ]);
+
+    $response = $this->post('/login', [
+        'email' => 'inactiveuser@example.com',
+        'password' => 'password123',
+    ]);
+
+    $response->assertSessionHasErrors('email');
+    $this->assertGuest();
 });
