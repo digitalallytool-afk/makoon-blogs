@@ -75,7 +75,7 @@ class AdminController extends Controller
         $status = $request->input('status');
         $category = $request->input('category_id');
 
-        $posts = Post::with(['category', 'author'])
+        $posts = Post::with(['category', 'author', 'updater'])
             ->when($search, fn ($q) => $q->where('title', 'like', "%{$search}%"))
             ->when($status, fn ($q) => $q->where('status', $status))
             ->when($category, fn ($q) => $q->where('category_id', $category))
@@ -198,6 +198,7 @@ class AdminController extends Controller
             'is_selected' => $request->boolean('is_selected'),
             'is_trending' => $request->boolean('is_trending'),
             'view_count' => $request->integer('view_count', 0),
+            'updated_by' => auth()->id(),
             'meta_title' => $validated['meta_title'] ?? null,
             'meta_description' => $validated['meta_description'] ?? null,
             'meta_keywords' => $validated['meta_keywords'] ?? null,
@@ -331,6 +332,7 @@ class AdminController extends Controller
         $post->is_selected = $request->boolean('is_selected');
         $post->is_trending = $request->boolean('is_trending');
         $post->view_count = $request->integer('view_count', 0);
+        $post->updated_by = auth()->id();
         $post->meta_title = $validated['meta_title'] ?? null;
         $post->meta_description = $validated['meta_description'] ?? null;
         $post->meta_keywords = $validated['meta_keywords'] ?? null;
@@ -994,7 +996,7 @@ class AdminController extends Controller
         $status = $request->input('status');
         $category = $request->input('story_category_id');
 
-        $stories = Story::with(['storyCategory', 'author'])
+        $stories = Story::with(['storyCategory', 'author', 'updater'])
             ->when($search, fn ($q) => $q->where('title', 'like', "%{$search}%"))
             ->when($status, fn ($q) => $q->where('status', $status))
             ->when($category, fn ($q) => $q->where('story_category_id', $category))
@@ -1068,6 +1070,7 @@ class AdminController extends Controller
             'author_id' => $validated['author_id'],
             'featured_image' => $imagePath,
             'view_count' => $request->integer('view_count', 0),
+            'updated_by' => auth()->id(),
             'meta_title' => $validated['meta_title'] ?? null,
             'meta_description' => $validated['meta_description'] ?? null,
             'meta_keywords' => $validated['meta_keywords'] ?? null,
@@ -1162,6 +1165,7 @@ class AdminController extends Controller
         $story->story_category_id = $validated['story_category_id'];
         $story->author_id = $validated['author_id'];
         $story->view_count = $request->integer('view_count', 0);
+        $story->updated_by = auth()->id();
         $story->meta_title = $validated['meta_title'] ?? null;
         $story->meta_description = $validated['meta_description'] ?? null;
         $story->meta_keywords = $validated['meta_keywords'] ?? null;
@@ -1253,7 +1257,8 @@ class AdminController extends Controller
         $search = $request->input('search');
         $status = $request->input('status');
 
-        $printables = Printable::when($search, fn ($q) => $q->where('name', 'like', "%{$search}%"))
+        $printables = Printable::with('updater')
+            ->when($search, fn ($q) => $q->where('name', 'like', "%{$search}%"))
             ->when($status, fn ($q) => $q->where('status', $status))
             ->latest()
             ->paginate(12)
@@ -1346,6 +1351,7 @@ class AdminController extends Controller
             'file_size' => $validated['file_size'],
             'download_count' => 0,
             'status' => $validated['status'],
+            'updated_by' => auth()->id(),
         ]);
 
         $sitemapService->generate();
@@ -1431,6 +1437,7 @@ class AdminController extends Controller
         $printable->name = $validated['name'];
         $printable->description = $validated['description'] ?? null;
         $printable->status = $validated['status'];
+        $printable->updated_by = auth()->id();
 
         $printable->save();
 
@@ -1627,7 +1634,7 @@ class AdminController extends Controller
 
         $categories = SessionCategory::orderBy('name')->get();
 
-        $videoSessions = VideoSession::with('sessionCategory')
+        $videoSessions = VideoSession::with(['sessionCategory', 'updater'])
             ->when($search, fn ($q) => $q->where('title', 'like', "%{$search}%"))
             ->when($status, fn ($q) => $q->where('status', $status))
             ->when($categoryId, fn ($q) => $q->where('session_category_id', $categoryId))
@@ -1698,6 +1705,7 @@ class AdminController extends Controller
             'video_url' => $embedUrl,
             'image' => $imagePath,
             'status' => $validated['status'],
+            'updated_by' => auth()->id(),
         ]);
 
         $sitemapService->generate();
@@ -1780,6 +1788,7 @@ class AdminController extends Controller
         $videoSession->video_url = $embedUrl;
         $videoSession->description = $validated['description'] ?? null;
         $videoSession->status = $validated['status'];
+        $videoSession->updated_by = auth()->id();
 
         $videoSession->save();
 

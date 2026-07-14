@@ -18,6 +18,7 @@ class Story extends Model
         'author_id',
         'view_count',
         'status',
+        'updated_by',
         'meta_title',
         'meta_description',
         'meta_keywords',
@@ -54,5 +55,13 @@ class Story extends Model
     public function author(): BelongsTo
     {
         return $this->belongsTo(Author::class, 'author_id');
+    }
+
+    /**
+     * Get the user that last updated this story.
+     */
+    public function updater(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

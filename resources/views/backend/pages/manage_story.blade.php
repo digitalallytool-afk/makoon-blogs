@@ -173,8 +173,17 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <span class="text-dark d-block">{{ $story->created_at->format('M d, Y') }}</span>
-                                            <small class="text-muted font-11">{{ $story->created_at->diffForHumans() }}</small>
+                                            <span class="text-dark d-block" title="Created on {{ $story->created_at->format('Y-m-d H:i:s') }}">
+                                                Created: {{ $story->created_at->format('M d, Y') }}
+                                            </span>
+                                            @if ($story->updater)
+                                                <small class="text-muted d-block font-11">
+                                                    Updated: {{ $story->updated_at->diffForHumans() }}
+                                                    <span class="text-secondary font-weight-bold">by {{ $story->updater->name }}</span>
+                                                </small>
+                                            @else
+                                                <small class="text-muted font-11">{{ $story->created_at->diffForHumans() }}</small>
+                                            @endif
                                         </td>
                                         <td class="text-end">
                                             <div class="d-flex order-actions gap-2 justify-content-end">

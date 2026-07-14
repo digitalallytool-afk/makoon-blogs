@@ -16,6 +16,7 @@ class VideoSession extends Model
         'video_url',
         'image',
         'status',
+        'updated_by',
     ];
 
     /**
@@ -40,5 +41,13 @@ class VideoSession extends Model
     public function isPublished(): bool
     {
         return $this->status === 'published';
+    }
+
+    /**
+     * Get the user that last updated this video session.
+     */
+    public function updater(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

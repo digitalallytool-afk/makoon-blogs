@@ -145,8 +145,17 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <span class="text-dark d-block">{{ $printable->created_at->format('M d, Y') }}</span>
-                                            <small class="text-muted font-11">{{ $printable->created_at->diffForHumans() }}</small>
+                                            <span class="text-dark d-block" title="Created on {{ $printable->created_at->format('Y-m-d H:i:s') }}">
+                                                Created: {{ $printable->created_at->format('M d, Y') }}
+                                            </span>
+                                            @if ($printable->updater)
+                                                <small class="text-muted d-block font-11">
+                                                    Updated: {{ $printable->updated_at->diffForHumans() }}
+                                                    <span class="text-secondary font-weight-bold">by {{ $printable->updater->name }}</span>
+                                                </small>
+                                            @else
+                                                <small class="text-muted font-11">{{ $printable->created_at->diffForHumans() }}</small>
+                                            @endif
                                         </td>
                                         <td class="text-end">
                                             <div class="d-flex order-actions gap-2 justify-content-end">

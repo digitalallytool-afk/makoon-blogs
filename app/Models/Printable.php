@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Printable extends Model
 {
@@ -17,6 +18,7 @@ class Printable extends Model
         'file_size',
         'download_count',
         'status',
+        'updated_by',
     ];
 
     /**
@@ -33,5 +35,13 @@ class Printable extends Model
     public function isPublished(): bool
     {
         return $this->status === 'published';
+    }
+
+    /**
+     * Get the user that last updated this printable.
+     */
+    public function updater(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

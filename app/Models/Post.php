@@ -20,6 +20,7 @@ class Post extends Model
         'status',
         'is_selected',
         'is_trending',
+        'updated_by',
         'meta_title',
         'meta_description',
         'meta_keywords',
@@ -67,5 +68,13 @@ class Post extends Model
     public function author(): BelongsTo
     {
         return $this->belongsTo(Author::class, 'author_id');
+    }
+
+    /**
+     * Get the user that last updated this post.
+     */
+    public function updater(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }
