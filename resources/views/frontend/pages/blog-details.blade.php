@@ -134,7 +134,7 @@
           <article class="article-content clean-article" data-article-content>
             @if($post->featured_image)
               <div class="detail-featured-image-wrapper" style="margin-bottom: 2rem; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                <img src="{{ asset($post->featured_image) }}" alt="{{ $post->title }}" style="width: 100%; height: auto; display: block; object-fit: cover; max-height: 480px;">
+                <img src="{{ asset($post->featured_image) }}" alt="{{ $post->title }}" style="width: 100%; height: auto; display: block;">
               </div>
             @endif
 

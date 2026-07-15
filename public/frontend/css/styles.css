@@ -2106,6 +2106,20 @@ time {
   line-height: 1.88;
 }
 
+.clean-article a {
+  color: var(--makoons-blue);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.clean-article a:hover {
+  color: hsl(192, 95%, 35%);
+  text-decoration-color: hsl(192, 95%, 35%);
+}
+
 .clean-article h2 {
   margin: 2.4rem 0 0.75rem;
   color: var(--ink);

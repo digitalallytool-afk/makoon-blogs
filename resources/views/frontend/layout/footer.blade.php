@@ -1,7 +1,9 @@
     <footer class="site-footer" id="contact">
         <div class="container-xl footer-grid">
             <div>
-                <img src="{{ asset('frontend/images') }}/makoons-logo.png" alt="Makoons logo" class="footer-logo">
+                <a href="https://makoons.com/" aria-label="Makoons home">
+                    <img src="{{ asset('frontend/images') }}/makoons-logo.png" alt="Makoons logo" class="footer-logo">
+                </a>
                 <p>Pre-school · Daycare · Activity Centre</p>
             </div>
 

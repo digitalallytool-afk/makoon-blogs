@@ -30,7 +30,7 @@
 <header class="site-header sticky-top">
     <nav class="navbar">
         <div class="container-xl nav-shell">
-            <a class="brand-lockup" href="{{ route('home') }}" aria-label="Makoons Blogs home">
+            <a class="brand-lockup" href="https://makoons.com/" aria-label="Makoons home">
                 <img src="{{ asset('frontend/images/makoons-logo.png') }}" alt="Makoons logo">
             </a>
 
