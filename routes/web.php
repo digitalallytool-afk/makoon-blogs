@@ -413,6 +413,15 @@ Route::get('/sessions-sitemap.xml', function () {
     abort(404);
 });
 
+Route::get('/sitemap.xsl', function () {
+    $path = public_path('sitemap.xsl');
+    if (file_exists($path)) {
+        return response(file_get_contents($path), 200)
+            ->header('Content-Type', 'text/xsl');
+    }
+    abort(404);
+});
+
 Route::get('/robots.txt', function () {
     $path = public_path('robots.txt');
     if (file_exists($path)) {
