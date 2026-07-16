@@ -97,3 +97,15 @@ test('can delete a story category', function () {
 
     $this->assertDatabaseMissing('story_categories', ['id' => $category->id]);
 });
+
+test('story category details page is accessible via stories path', function () {
+    $category = StoryCategory::create([
+        'name' => 'Fairy Tales',
+        'slug' => 'fairy-tales',
+    ]);
+
+    $response = $this->get('/stories/fairy-tales');
+    $response->assertStatus(200);
+    $response->assertViewHas('category');
+    $response->assertViewHas('type', 'stories');
+});

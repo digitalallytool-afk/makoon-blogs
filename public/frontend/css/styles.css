@@ -7231,8 +7231,8 @@ main,
 }
 
 .all-printables-masthead {
-  padding: clamp(3rem, 7vw, 5.8rem) 0 clamp(1.6rem, 4vw, 3rem);
-  border-bottom: 1px solid rgba(34, 34, 34, 0.1);
+  padding: clamp(2rem, 5vw, 4rem) 0 clamp(1rem, 2.5vw, 1.5rem);
+  border-bottom: 1px solid rgba(34, 34, 34, 0.08);
 }
 
 .all-printables-page .all-printables-masthead > .container-xl,
@@ -7268,7 +7268,7 @@ main,
 }
 
 .all-printables-section {
-  padding: clamp(1.8rem, 5vw, 4rem) 0 clamp(4rem, 8vw, 7rem);
+  padding: clamp(1rem, 3vw, 2rem) 0 clamp(3rem, 6vw, 5rem);
 }
 
 .all-printables-inner {
@@ -7449,105 +7449,169 @@ main,
 /* --- Exact home-style cards on all printables page --- */
 .all-printables-page .printable-library-grid.printable-collage-grid {
   display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: clamp(0.9rem, 1.6vw, 1.15rem) !important;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+  justify-content: center !important;
+  gap: clamp(1rem, 2.5vw, 2.2rem) !important;
   width: 100%;
 }
 
 .all-printables-page .printable-collage-card,
 .all-printables-page .printable-collage-card:nth-child(n),
-.all-printables-page .printable-collage-card:nth-child(4) {
+.all-printables-page .printable-collage-card:nth-child(4),
+.printables-section .printable-collage-card,
+.printables-section .printable-collage-card:nth-child(n),
+.printables-section .printable-collage-card:nth-child(4) {
   position: relative !important;
-  display: grid !important;
-  grid-template-columns: 1fr !important;
-  grid-template-rows: auto 1fr !important;
-  grid-column: auto !important;
-  transform: none !important;
-  overflow: visible !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.02) !important;
+  border-radius: 24px !important;
+  padding: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.035), 0 2px 8px rgba(0, 0, 0, 0.01) !important;
+  transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  overflow: hidden !important;
+  width: 100% !important;
+  max-width: 315px !important;
+  margin: 0 auto !important;
 }
 
-.all-printables-page .printable-collage-card:hover {
-  transform: translateY(-3px) !important;
+.all-printables-page .printable-collage-card:hover,
+.printables-section .printable-collage-card:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 16px 36px rgba(127, 63, 152, 0.08), 0 4px 12px rgba(0, 0, 0, 0.02) !important;
+  border-color: rgba(127, 63, 152, 0.25) !important;
 }
 
 .all-printables-page .printable-collage-card .printable-preview,
 .all-printables-page .printable-collage-card.printable-featured .printable-preview,
-.all-printables-page .printable-collage-card:nth-child(4) .printable-preview {
-  min-height: 170px !important;
-  aspect-ratio: 1.1 / 1 !important;
-  border: 8px solid #fff !important;
-  border-bottom-width: 24px !important;
-  border-radius: 7px !important;
-  box-shadow: 0 12px 28px rgba(20, 18, 23, 0.1) !important;
+.all-printables-page .printable-collage-card:nth-child(4) .printable-preview,
+.printables-section .printable-collage-card .printable-preview,
+.printables-section .printable-collage-card.printable-featured .printable-preview,
+.printables-section .printable-collage-card:nth-child(4) .printable-preview {
+  min-height: 330px !important;
+  aspect-ratio: 3.1 / 4 !important;
+  border: 0 !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-color: #ffffff !important;
   overflow: hidden !important;
+  margin: 0 !important;
 }
 
-.all-printables-page .printable-fallback::before {
+.all-printables-page .printable-fallback::before,
+.printables-section .printable-fallback::before {
   content: none !important;
 }
 
-.all-printables-page .printable-fallback span {
-  top: 0.85rem !important;
-  left: 0.85rem !important;
+.all-printables-page .printable-fallback span,
+.printables-section .printable-fallback span {
+  top: 1rem !important;
+  left: 1rem !important;
   border: 0 !important;
-  background: rgba(255, 255, 255, 0.88) !important;
-  box-shadow: 0 8px 18px rgba(20, 18, 23, 0.12) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 4px 12px rgba(20, 18, 23, 0.08) !important;
+  font-weight: 500 !important;
 }
 
-.all-printables-page .printable-collage-card .printable-copy {
+.all-printables-page .printable-collage-card .printable-copy,
+.printables-section .printable-collage-card .printable-copy {
   position: relative !important;
-  display: grid !important;
-  align-content: start !important;
-  margin: -1.15rem 0.7rem 0 !important;
-  padding: 0.85rem !important;
-  border: 1px solid rgba(34, 34, 34, 0.08) !important;
-  border-radius: 12px !important;
-  background: rgba(255, 255, 255, 0.96) !important;
-  box-shadow: 0 12px 28px rgba(20, 18, 23, 0.08) !important;
-  gap: 0.42rem !important;
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin: 12px 4px 4px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  gap: 12px !important;
 }
 
-.all-printables-page .printable-collage-card .printable-copy > span {
-  color: var(--airbnb-muted, var(--muted));
-  font-size: 0.7rem !important;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+.all-printables-page .printable-collage-card .printable-copy > span,
+.printables-section .printable-collage-card .printable-copy > span {
+  display: none !important;
 }
 
-.all-printables-page .printable-collage-card .printable-copy h3 {
-  margin: 0;
-  color: var(--airbnb-text, var(--ink));
-  font-size: clamp(1rem, 1.25vw, 1.12rem) !important;
-  line-height: 1.22 !important;
-  font-weight: 400;
+.all-printables-page .printable-collage-card .printable-copy h3,
+.printables-section .printable-collage-card .printable-copy h3 {
+  margin: 0 !important;
+  color: var(--ink) !important;
+  font-size: clamp(1rem, 1.35vw, 1.22rem) !important;
+  line-height: 1.25 !important;
+  font-weight: 700 !important;
+  text-align: left !important;
 }
 
-.all-printables-page .printable-collage-card .printable-copy p {
-  margin: 0;
-  color: var(--airbnb-muted, var(--muted));
-  font-size: 0.84rem !important;
-  line-height: 1.45 !important;
-}
-
-.all-printables-page .printable-collage-card .printable-action {
-  justify-self: start !important;
-  margin-top: 0.22rem !important;
-  padding: 0.48rem 0.78rem !important;
-  border: 1px solid #111 !important;
-  border-radius: 999px !important;
-  background: #111 !important;
-  color: #fff !important;
-  font-size: 0.86rem !important;
+.all-printables-page .printable-collage-card .printable-copy h3 a,
+.printables-section .printable-collage-card .printable-copy h3 a {
+  color: inherit !important;
   text-decoration: none !important;
 }
 
-.all-printables-page .printable-collage-card .printable-action:hover {
-  background: #333 !important;
-  border-color: #333 !important;
+.all-printables-page .printable-collage-card .printable-copy p,
+.printables-section .printable-collage-card .printable-copy p {
+  display: none !important;
+}
+
+.all-printables-page .printable-collage-card .printable-action,
+.printables-section .printable-collage-card .printable-action {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  border-radius: 50% !important;
+  background: rgba(127, 63, 152, 0.06) !important;
+  border: 2px solid #7f3f98 !important;
+  color: #7f3f98 !important;
+  font-size: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  justify-self: end !important;
+  box-shadow: none !important;
+}
+
+.all-printables-page .printable-collage-card .printable-action::before,
+.printables-section .printable-collage-card .printable-action::before {
+  content: "";
+  width: 22px;
+  height: 22px;
+  background-color: #7f3f98 !important;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' fill='black' xmlns='http://www.w3.org/2000/svg'><path d='M19.35 10.04C18.67 6.59 15.64 4 12 4c-3.64 0-6.67 2.59-7.35 6.04C2.05 10.22 0 12.36 0 15c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z'/></svg>") no-repeat center;
+  mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' fill='black' xmlns='http://www.w3.org/2000/svg'><path d='M19.35 10.04C18.67 6.59 15.64 4 12 4c-3.64 0-6.67 2.59-7.35 6.04C2.05 10.22 0 12.36 0 15c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z'/></svg>") no-repeat center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  display: block;
+}
+
+.all-printables-page .printable-collage-card .printable-action:hover,
+.printables-section .printable-collage-card .printable-action:hover {
+  background: #7f3f98 !important;
+  border-color: #7f3f98 !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 8px 20px rgba(127, 63, 152, 0.3) !important;
+}
+
+.all-printables-page .printable-collage-card .printable-action:hover::before,
+.printables-section .printable-collage-card .printable-action:hover::before {
+  background-color: #ffffff !important;
+  animation: arrow-bounce 0.8s ease infinite !important;
+}
+
+@keyframes arrow-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
 }
 
 @media (max-width: 1180px) {
@@ -9084,7 +9148,7 @@ main,
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding: 0.15rem 0.1rem 1rem;
+  padding: 0.75rem 0.1rem 1rem !important;
 }
 
 .printables-section .printable-collage-grid::-webkit-scrollbar {
@@ -12572,7 +12636,7 @@ body:not(.detail-page) .recent-stories-section {
 }
 
 body:not(.detail-page) .printables-section {
-  background: #fffaf3 !important;
+  background: #ffffff !important;
 }
 
 body:not(.detail-page) .parent-sessions-section {
@@ -12657,8 +12721,13 @@ body.all-stories-page {
 }
 
 /* Match all-printables page background with homepage printables section background */
-body.all-printables-page {
-  background: #fffaf3 !important;
+body.all-printables-page,
+body.all-printables-page main,
+body.all-printables-page .all-printables-masthead,
+body.all-printables-page .all-printables-section {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
 }
 
 /* Match all-posts page background with homepage latest articles section background */
@@ -12820,5 +12889,284 @@ body.all-posts-page {
 .floating-balloon-right {
   animation: float-gentle-3 4.5s ease-in-out infinite;
   transform-origin: center;
+}
+
+/* ==========================================
+ * Section Specific Brand Themes (Logo Coloring)
+ * ========================================== */
+
+/* --- STORIES SECTION (Yellow Theme) --- */
+body.all-stories-page .site-header {
+  background: var(--makoons-yellow) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 8px 22px rgba(245, 180, 43, 0.15) !important;
+}
+
+body.all-stories-page .site-header .nav-link,
+body.all-stories-page .site-header .search-button,
+body.all-stories-page .site-header .navbar-nav .nav-link,
+body.all-stories-page .site-header .navbar-nav .search-button {
+  color: var(--ink) !important;
+}
+
+body.all-stories-page .site-header .nav-link::after,
+body.all-stories-page .site-header .navbar-nav .nav-link::after {
+  background: var(--ink) !important;
+}
+
+body.all-stories-page .site-header .nav-toggle span {
+  background: var(--ink) !important;
+}
+
+body.all-stories-page .site-header .search-button {
+  border-color: rgba(20, 18, 23, 0.25) !important;
+  background: rgba(20, 18, 23, 0.08) !important;
+}
+
+body.all-stories-page .site-header .search-button svg,
+body.all-stories-page .site-header .search-button svg path {
+  fill: var(--ink) !important;
+}
+
+body.all-stories-page .site-header .search-button:hover {
+  background: var(--ink) !important;
+  color: var(--white) !important;
+}
+
+body.all-stories-page .site-header .search-button:hover svg,
+body.all-stories-page .site-header .search-button:hover svg path {
+  fill: var(--white) !important;
+}
+
+@media (max-width: 900px) {
+  body.all-stories-page .site-header .navbar-collapse {
+    background: var(--makoons-yellow) !important;
+  }
+}
+
+/* Stories Footer */
+body.all-stories-page .site-footer {
+  background: var(--makoons-yellow) !important;
+  color: var(--ink) !important;
+}
+
+body.all-stories-page .site-footer::before {
+  background: 
+    linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent 34%),
+    radial-gradient(circle at 88% 20%, rgba(255, 255, 255, 0.3), transparent 28%),
+    linear-gradient(180deg, rgba(245, 180, 43, 0) 0%, rgba(245, 180, 43, 0.2) 100%) !important;
+}
+
+body.all-stories-page .site-footer h3,
+body.all-stories-page .site-footer .footer-grid h3,
+body.all-stories-page .site-footer p,
+body.all-stories-page .site-footer .footer-grid p,
+body.all-stories-page .site-footer .newsletter-block p,
+body.all-stories-page .site-footer .footer-bottom,
+body.all-stories-page .site-footer a,
+body.all-stories-page .site-footer .footer-grid a {
+  color: var(--ink) !important;
+}
+
+body.all-stories-page .site-footer a:hover,
+body.all-stories-page .site-footer .footer-grid a:hover {
+  color: var(--makoons-ink-hover) !important;
+  opacity: 0.8;
+}
+
+body.all-stories-page .site-footer .newsletter-form button {
+  background: var(--ink) !important;
+  color: var(--white) !important;
+}
+
+body.all-stories-page .site-footer .newsletter-form button:hover {
+  background: var(--makoons-ink-hover) !important;
+}
+
+body.all-stories-page .site-footer .newsletter-form input[type="email"] {
+  background: rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  color: var(--ink) !important;
+}
+
+body.all-stories-page .site-footer .newsletter-form input[type="email"]::placeholder {
+  color: rgba(20, 18, 23, 0.6) !important;
+}
+
+/* --- PRINTABLES SECTION (Green Theme) --- */
+body.all-printables-page .site-header {
+  background: var(--makoons-green) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 8px 22px rgba(114, 184, 67, 0.15) !important;
+}
+
+body.all-printables-page .site-header .nav-link,
+body.all-printables-page .site-header .search-button,
+body.all-printables-page .site-header .navbar-nav .nav-link,
+body.all-printables-page .site-header .navbar-nav .search-button {
+  color: #fff !important;
+}
+
+body.all-printables-page .site-header .nav-link::after,
+body.all-printables-page .site-header .navbar-nav .nav-link::after {
+  background: var(--makoons-yellow) !important;
+}
+
+body.all-printables-page .site-header .nav-toggle span {
+  background: #fff !important;
+}
+
+body.all-printables-page .site-header .search-button {
+  border-color: rgba(255, 255, 255, 0.38) !important;
+  background: rgba(255, 255, 255, 0.14) !important;
+}
+
+body.all-printables-page .site-header .search-button svg,
+body.all-printables-page .site-header .search-button svg path {
+  fill: #fff !important;
+}
+
+@media (max-width: 900px) {
+  body.all-printables-page .site-header .navbar-collapse {
+    background: var(--makoons-green) !important;
+  }
+}
+
+/* Printables Footer */
+body.all-printables-page .site-footer {
+  background: var(--makoons-green) !important;
+  color: #fff !important;
+}
+
+body.all-printables-page .site-footer::before {
+  background: 
+    linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent 34%),
+    radial-gradient(circle at 88% 20%, rgba(255, 255, 255, 0.2), transparent 28%),
+    linear-gradient(180deg, rgba(114, 184, 67, 0) 0%, rgba(114, 184, 67, 0.3) 100%) !important;
+}
+
+body.all-printables-page .site-footer h3,
+body.all-printables-page .site-footer .footer-grid h3,
+body.all-printables-page .site-footer p,
+body.all-printables-page .site-footer .footer-grid p,
+body.all-printables-page .site-footer .newsletter-block p,
+body.all-printables-page .site-footer .footer-bottom,
+body.all-printables-page .site-footer a,
+body.all-printables-page .site-footer .footer-grid a {
+  color: #fff !important;
+}
+
+body.all-printables-page .site-footer a:hover,
+body.all-printables-page .site-footer .footer-grid a:hover {
+  color: var(--makoons-yellow) !important;
+}
+
+body.all-printables-page .site-footer .newsletter-form button {
+  background: var(--makoons-yellow) !important;
+  color: var(--ink) !important;
+}
+
+body.all-printables-page .site-footer .newsletter-form button:hover {
+  background: #f8b71b !important;
+}
+
+body.all-printables-page .site-footer .newsletter-form input[type="email"] {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #fff !important;
+}
+
+/* --- SESSIONS SECTION (Violet Theme) --- */
+body.all-sessions-page .site-header {
+  background: #7f3f98 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 8px 22px rgba(127, 63, 152, 0.18) !important;
+}
+
+body.all-sessions-page .site-header .nav-link,
+body.all-sessions-page .site-header .search-button,
+body.all-sessions-page .site-header .navbar-nav .nav-link,
+body.all-sessions-page .site-header .navbar-nav .search-button {
+  color: #fff !important;
+}
+
+body.all-sessions-page .site-header .nav-link::after,
+body.all-sessions-page .site-header .navbar-nav .nav-link::after {
+  background: var(--makoons-yellow) !important;
+}
+
+body.all-sessions-page .site-header .nav-toggle span {
+  background: #fff !important;
+}
+
+body.all-sessions-page .site-header .search-button {
+  border-color: rgba(255, 255, 255, 0.38) !important;
+  background: rgba(255, 255, 255, 0.14) !important;
+}
+
+body.all-sessions-page .site-header .search-button svg,
+body.all-sessions-page .site-header .search-button svg path {
+  fill: #fff !important;
+}
+
+@media (max-width: 900px) {
+  body.all-sessions-page .site-header .navbar-collapse {
+    background: #7f3f98 !important;
+  }
+}
+
+/* Sessions Footer */
+body.all-sessions-page .site-footer {
+  background: #7f3f98 !important;
+  color: #fff !important;
+}
+
+body.all-sessions-page .site-footer::before {
+  background: 
+    linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent 34%),
+    radial-gradient(circle at 88% 20%, rgba(255, 255, 255, 0.2), transparent 28%),
+    linear-gradient(180deg, rgba(127, 63, 152, 0) 0%, rgba(127, 63, 152, 0.3) 100%) !important;
+}
+
+body.all-sessions-page .site-footer h3,
+body.all-sessions-page .site-footer .footer-grid h3,
+body.all-sessions-page .site-footer p,
+body.all-sessions-page .site-footer .footer-grid p,
+body.all-sessions-page .site-footer .newsletter-block p,
+body.all-sessions-page .site-footer .footer-bottom,
+body.all-sessions-page .site-footer a,
+body.all-sessions-page .site-footer .footer-grid a {
+  color: #fff !important;
+}
+
+body.all-sessions-page .site-footer a:hover,
+body.all-sessions-page .site-footer .footer-grid a:hover {
+  color: var(--makoons-yellow) !important;
+}
+
+body.all-sessions-page .site-footer .newsletter-form button {
+  background: var(--makoons-yellow) !important;
+  color: var(--ink) !important;
+}
+
+body.all-sessions-page .site-footer .newsletter-form button:hover {
+  background: #f8b71b !important;
+}
+
+body.all-sessions-page .site-footer .newsletter-form input[type="email"] {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #fff !important;
+}
+
+/* --- SECTION SEARCH SVGS ACCENTS --- */
+body.all-stories-page #latest .article-search-field svg {
+  fill: var(--makoons-yellow) !important;
+}
+body.all-printables-page #latest .article-search-field svg {
+  fill: var(--makoons-green) !important;
+}
+body.all-sessions-page #latest .article-search-field svg {
+  fill: #7f3f98 !important;
 }
 

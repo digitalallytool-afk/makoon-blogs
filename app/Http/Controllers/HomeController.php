@@ -409,7 +409,15 @@ class HomeController extends Controller
         $story = Story::with(['storyCategory', 'author'])
             ->published()
             ->where('slug', $slug)
-            ->firstOrFail();
+            ->first();
+
+        if (! $story) {
+            $storyCategory = StoryCategory::where('slug', $slug)->first();
+            if ($storyCategory) {
+                return $this->categoryDetails($slug);
+            }
+            abort(404);
+        }
 
         $viewedStories = session()->get('viewed_stories', []);
         if (! in_array($story->id, $viewedStories)) {

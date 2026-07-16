@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\StoryCategory;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,6 +32,13 @@ class RewriteStoriesUrl
                         $content = str_replace($oldUrl, $newUrl, $content);
                         $content = str_replace('href="/blogs/'.$section, 'href="/'.$section, $content);
                         $content = str_replace('action="/blogs/'.$section, 'action="/'.$section, $content);
+                    }
+
+                    // Dynamically rewrite story category URLs from /blogs/slug to /stories/slug
+                    $storyCategorySlugs = StoryCategory::pluck('slug')->toArray();
+                    foreach ($storyCategorySlugs as $slug) {
+                        $content = str_replace('href="/blogs/'.$slug, 'href="/stories/'.$slug, $content);
+                        $content = str_replace('href="'.$appUrl.'/'.$slug, 'href="'.str_replace('/blogs', '', $appUrl).'/stories/'.$slug, $content);
                     }
 
                     $original = $response->original ?? null;

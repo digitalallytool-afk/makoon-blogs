@@ -3,7 +3,7 @@
 @section('meta_description', $story->meta_description ?? $story->excerpt)
 @section('meta_keywords', $story->meta_keywords ?? ($story->storyCategory->name ?? 'preschool stories') . ', children stories, classroom stories, Makoons')
 @section('canonical_url', $story->canonical_url ? rtrim($story->canonical_url, '/') : route('story.show', $story->slug))
-@section('body_class', 'detail-page')
+@section('body_class', 'detail-page all-stories-page')
 
 @section('content')
     @if(isset($isPreview) && $isPreview)

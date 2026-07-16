@@ -18,12 +18,6 @@
 
       <section class="all-printables-section" id="latest">
         <div class="container-xl all-printables-inner">
-          <div class="printable-library-lead">
-            <span>Ready to download</span>
-            <h2>Creative sheets for small hands</h2>
-            <p>Use these printables for classroom extensions, weekend art time, festival activities, or calm coloring moments after school.</p>
-          </div>
-
           <div class="article-tools" aria-label="Printable search" style="margin-bottom: 1rem; justify-content: flex-end;">
             <label class="article-search">
               <span>Search printables</span>
