@@ -431,5 +431,7 @@ Route::get('/robots.txt', function () {
     abort(404);
 });
 
+Route::get('/api/recent-posts', [HomeController::class, 'getRecentPostsApi']);
+
 Route::get('/{slug}', [HomeController::class, 'blogDetails'])->name('blog.show');
 Route::get('/{category_slug}', [HomeController::class, 'blogDetails'])->name('category.show');

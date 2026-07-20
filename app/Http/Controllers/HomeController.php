@@ -10,7 +10,9 @@ use App\Models\SessionCategory;
 use App\Models\Story;
 use App\Models\StoryCategory;
 use App\Models\VideoSession;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class HomeController extends Controller
@@ -583,5 +585,30 @@ class HomeController extends Controller
                 'type' => 'blogs',
             ]);
         }
+    }
+
+    public function getRecentPostsApi(): JsonResponse
+    {
+        $posts = Post::published()
+            ->latest('id')
+            ->take(3)
+            ->get()
+            ->map(function ($post) {
+                $baseUrl = rtrim(config('app.url'), '/');
+                $fullUrl = $post->canonical_url
+                    ? rtrim($post->canonical_url, '/')
+                    : (str_ends_with($baseUrl, '/blogs') ? $baseUrl.'/'.$post->slug : $baseUrl.'/blogs/'.$post->slug);
+
+                return [
+                    'title' => $post->title,
+                    'url' => $fullUrl,
+                    'featured_image' => $post->featured_image ? asset($post->featured_image) : null,
+                    'excerpt' => Str::limit(strip_tags($post->content ?? ''), 120),
+                    'date' => $post->updated_at->toIso8601String(),
+                ];
+            });
+
+        return response()->json($posts)
+            ->header('Access-Control-Allow-Origin', '*');
     }
 }
