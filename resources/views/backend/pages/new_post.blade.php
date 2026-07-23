@@ -62,6 +62,15 @@
                                            style="font-weight: 600; padding: 12px 15px;">
                                 </div>
 
+                                <div class="mb-4">
+                                    <label for="post-slug" class="form-label font-weight-bold text-secondary font-12 text-uppercase">URL Slug</label>
+                                    <input type="text" class="form-control border-0 bg-light-subtle shadow-none font-14"
+                                           id="post-slug" name="slug" value="{{ old('slug') }}"
+                                           placeholder="Optional: Enter custom URL slug (e.g. custom-slug)..."
+                                           style="padding: 10px 15px;">
+                                    <small class="text-muted mt-1 d-block font-11">Leave blank to automatically generate from the title.</small>
+                                </div>
+
                                 <!-- Editor -->
                                 <div class="mb-4">
                                     <label for="post-content" class="form-label font-weight-bold text-secondary font-12 text-uppercase">Article Content</label>
@@ -159,6 +168,50 @@
 
                     <!-- ===================== Right Column ===================== -->
                     <div class="col-12 col-xl-4 d-flex flex-column gap-4">
+
+                        <!-- SEO Analyzer Card -->
+                        <div class="card radius-10 border-0 shadow-sm mb-0" id="seo-analyzer-card">
+                            <div class="card-header bg-transparent border-bottom-0 pt-3 pb-0">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h6 class="mb-0 font-weight-bold text-dark">SEO Analyzer</h6>
+                                    <span class="badge font-11" id="seo-score-badge" style="background:#e9ecef;color:#666;">— / 100</span>
+                                </div>
+                            </div>
+                            <div class="card-body pt-2">
+                                <!-- Score Gauge -->
+                                <div class="d-flex align-items-center gap-3 mb-3 p-2 rounded" id="seo-score-bar-wrap" style="background:#f8f9fa;">
+                                    <div style="position:relative;width:52px;height:52px;flex-shrink:0;">
+                                        <svg viewBox="0 0 36 36" style="width:52px;height:52px;transform:rotate(-90deg);">
+                                            <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e9ecef" stroke-width="3"/>
+                                            <circle cx="18" cy="18" r="15.9" fill="none" stroke="#198754" stroke-width="3"
+                                                stroke-dasharray="0 100" stroke-linecap="round"
+                                                id="seo-gauge-circle" style="transition:stroke-dasharray .5s ease,stroke .3s;"/>
+                                        </svg>
+                                        <span id="seo-score-num" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#333;">0</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-weight-bold font-13" id="seo-score-label">Start filling fields</div>
+                                        <div class="text-muted font-11" id="seo-score-sub">Add title, meta &amp; keywords to see your SEO score</div>
+                                    </div>
+                                </div>
+
+                                <!-- Google SERP Preview -->
+                                <div class="mb-3">
+                                    <div class="font-weight-bold text-secondary font-11 text-uppercase mb-1">Google Preview</div>
+                                    <div style="border:1px solid #e0e0e0;border-radius:8px;padding:10px 12px;background:#fff;">
+                                        <div id="serp-url" style="font-size:11px;color:#1a7f37;margin-bottom:2px;word-break:break-all;">makoons.com › blogs › ...</div>
+                                        <div id="serp-title" style="font-size:14px;color:#1a0dab;font-weight:600;line-height:1.3;margin-bottom:3px;">Your blog title will appear here</div>
+                                        <div id="serp-desc" style="font-size:12px;color:#4d5156;line-height:1.5;">Your meta description will appear here. Make it compelling to get more clicks from search results.</div>
+                                    </div>
+                                </div>
+
+                                <!-- Checks List -->
+                                <div class="font-weight-bold text-secondary font-11 text-uppercase mb-2">SEO Checks</div>
+                                <div id="seo-checks-list" style="display:flex;flex-direction:column;gap:5px;">
+                                    <!-- checks rendered by JS -->
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- Publish Card -->
                         <div class="card radius-10 border-0 shadow-sm mb-0">
@@ -476,6 +529,225 @@
                     form.removeAttribute('target');
                 }
             });
+
+            // ===================== SEO Analyzer =====================
+            (function() {
+                const titleEl   = document.getElementById('post-title');
+                const metaTitle = document.getElementById('seo-meta-title');
+                const metaDesc  = document.getElementById('seo-meta-desc');
+                const metaKw    = document.getElementById('seo-meta-keywords');
+                const contentEl = document.getElementById('post-content');
+
+                const scoreNum   = document.getElementById('seo-score-num');
+                const scoreBadge = document.getElementById('seo-score-badge');
+                const scoreLabel = document.getElementById('seo-score-label');
+                const scoreSub   = document.getElementById('seo-score-sub');
+                const gauge      = document.getElementById('seo-gauge-circle');
+                const serpTitle  = document.getElementById('serp-title');
+                const serpDesc   = document.getElementById('serp-desc');
+                const serpUrl    = document.getElementById('serp-url');
+                const checksList = document.getElementById('seo-checks-list');
+
+                const POWER_WORDS = ['best','top','guide','how','why','what','tips','ways','secrets','proven','ultimate','complete','easy','free','new','fast','quick','simple'];
+
+                function wordCount(str) {
+                    const t = str.replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
+                    return t ? t.split(' ').length : 0;
+                }
+
+                function keywordDensity(content, kw) {
+                    if (!kw || !content) return 0;
+                    const text = content.replace(/<[^>]*>/g,' ').toLowerCase();
+                    const words = text.split(/\s+/).filter(Boolean);
+                    const kwLower = kw.toLowerCase();
+                    const matches = words.filter(w => w.includes(kwLower)).length;
+                    return words.length > 0 ? (matches / words.length) * 100 : 0;
+                }
+
+                function hasPowerWord(str) {
+                    const lower = str.toLowerCase();
+                    return POWER_WORDS.some(w => lower.includes(w));
+                }
+
+                function analyse() {
+                    const title   = (titleEl ? titleEl.value : '').trim();
+                    const mTitle  = (metaTitle ? metaTitle.value : '').trim();
+                    const mDesc   = (metaDesc  ? metaDesc.value  : '').trim();
+                    const kwStr   = (metaKw    ? metaKw.value    : '').trim();
+                    const content = (contentEl ? contentEl.value : '').trim();
+
+                    const kwList  = kwStr ? kwStr.split(',').map(k=>k.trim()).filter(Boolean) : [];
+                    const focusKw = kwList[0] || '';
+                    const wc      = wordCount(content);
+                    const density = keywordDensity(content, focusKw);
+
+                    // Update SERP preview
+                    serpTitle.textContent = mTitle || title || 'Your blog title will appear here';
+                    serpTitle.style.color = (mTitle||title) ? '#1a0dab' : '#999';
+                    serpDesc.textContent  = mDesc || 'Your meta description will appear here. Make it compelling to get more clicks from search results.';
+                    serpDesc.style.color  = mDesc ? '#4d5156' : '#bbb';
+                    if (title) {
+                        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+                        serpUrl.textContent = 'makoons.com › blogs › ' + slug;
+                    }
+
+                    // Define checks
+                    const checks = [
+                        {
+                            label: 'Meta Title length',
+                            run: () => {
+                                if (!mTitle) return 'fail';
+                                const l = mTitle.length;
+                                if (l >= 50 && l <= 60) return 'pass';
+                                if (l >= 40 && l <= 70) return 'warn';
+                                return 'fail';
+                            },
+                            msgs: { pass: `Meta Title: ${mTitle.length} chars (ideal 50–60)`, warn: `Meta Title: ${mTitle.length} chars (try for 50–60)`, fail: !mTitle ? 'Meta Title is empty' : `Meta Title: ${mTitle.length} chars (too short/long)` }
+                        },
+                        {
+                            label: 'Focus keyword in Title',
+                            run: () => {
+                                if (!focusKw || !mTitle) return 'fail';
+                                return mTitle.toLowerCase().includes(focusKw.toLowerCase()) ? 'pass' : 'fail';
+                            },
+                            msgs: { pass: `"${focusKw}" found in meta title`, warn: '', fail: !focusKw ? 'Add at least one keyword' : `"${focusKw}" missing from meta title` }
+                        },
+                        {
+                            label: 'Power words in Title',
+                            run: () => {
+                                if (!mTitle && !title) return 'fail';
+                                return hasPowerWord(mTitle || title) ? 'pass' : 'warn';
+                            },
+                            msgs: { pass: 'Title contains a power word 🎯', warn: 'Add power words like Best, Guide, Tips…', fail: 'Title is empty' }
+                        },
+                        {
+                            label: 'Meta Description length',
+                            run: () => {
+                                if (!mDesc) return 'fail';
+                                const l = mDesc.length;
+                                if (l >= 150 && l <= 160) return 'pass';
+                                if (l >= 120 && l <= 180) return 'warn';
+                                return 'fail';
+                            },
+                            msgs: { pass: `Description: ${mDesc.length} chars (perfect!)`, warn: `Description: ${mDesc.length} chars (aim for 150–160)`, fail: !mDesc ? 'Meta Description is empty' : `Description: ${mDesc.length} chars (too short/long)` }
+                        },
+                        {
+                            label: 'Focus keyword in Description',
+                            run: () => {
+                                if (!focusKw || !mDesc) return 'fail';
+                                return mDesc.toLowerCase().includes(focusKw.toLowerCase()) ? 'pass' : 'fail';
+                            },
+                            msgs: { pass: `"${focusKw}" found in description`, warn: '', fail: !focusKw ? 'Set a focus keyword first' : `"${focusKw}" missing from description` }
+                        },
+                        {
+                            label: 'Article Title length',
+                            run: () => {
+                                if (!title) return 'fail';
+                                if (title.length <= 60) return 'pass';
+                                if (title.length <= 70) return 'warn';
+                                return 'fail';
+                            },
+                            msgs: { pass: `Article title length OK (${title.length} chars)`, warn: `Article title a bit long (${title.length} chars)`, fail: !title ? 'Article title is empty' : `Article title too long (${title.length} chars)` }
+                        },
+                        {
+                            label: 'Keywords filled',
+                            run: () => kwList.length > 0 ? 'pass' : 'fail',
+                            msgs: { pass: `${kwList.length} keyword(s) added`, warn: '', fail: 'Add comma-separated keywords' }
+                        },
+                        {
+                            label: 'Keyword count (no stuffing)',
+                            run: () => {
+                                if (kwList.length === 0) return 'fail';
+                                if (kwList.length <= 5) return 'pass';
+                                if (kwList.length <= 8) return 'warn';
+                                return 'fail';
+                            },
+                            msgs: { pass: `${kwList.length} keywords (ideal ≤5)`, warn: `${kwList.length} keywords (consider reducing)`, fail: kwList.length === 0 ? 'No keywords set' : `${kwList.length} keywords (too many!)` }
+                        },
+                        {
+                            label: 'Keyword density',
+                            run: () => {
+                                if (!focusKw || !content) return 'warn';
+                                if (density <= 3) return 'pass';
+                                if (density <= 5) return 'warn';
+                                return 'fail';
+                            },
+                            msgs: { pass: `Keyword density: ${density.toFixed(1)}% (good)`, warn: !content ? 'Add content to check density' : `Keyword density: ${density.toFixed(1)}% (slightly high)`, fail: `Keyword density: ${density.toFixed(1)}% (too high!)` }
+                        },
+                        {
+                            label: 'Content word count',
+                            run: () => {
+                                if (wc >= 300) return 'pass';
+                                if (wc >= 100) return 'warn';
+                                return 'fail';
+                            },
+                            msgs: { pass: `${wc} words (great length!)`, warn: `${wc} words (aim for 300+)`, fail: `${wc} words (too short for Google)` }
+                        },
+                    ];
+
+                    // Render checks & calculate score
+                    let score = 0;
+                    const icons = {
+                        pass: '<span style="color:#198754;font-size:13px;">✔</span>',
+                        warn: '<span style="color:#ffc107;font-size:13px;">⚠</span>',
+                        fail: '<span style="color:#dc3545;font-size:13px;">✖</span>'
+                    };
+                    const points = { pass: 10, warn: 5, fail: 0 };
+
+                    checksList.innerHTML = checks.map(c => {
+                        const status = c.run();
+                        score += points[status];
+                        const msg = c.msgs[status] || c.label;
+                        const color = status === 'pass' ? '#198754' : status === 'warn' ? '#856404' : '#842029';
+                        const bg   = status === 'pass' ? '#d1e7dd' : status === 'warn' ? '#fff3cd' : '#f8d7da';
+                        return `<div style="display:flex;align-items:flex-start;gap:7px;padding:5px 8px;border-radius:6px;background:${bg};">
+                            <span style="flex-shrink:0;margin-top:1px;">${icons[status]}</span>
+                            <span style="font-size:11.5px;color:${color};line-height:1.4;">${msg}</span>
+                        </div>`;
+                    }).join('');
+
+                    // Update gauge
+                    const pct = Math.round(score);
+                    scoreNum.textContent  = pct;
+                    scoreBadge.textContent = pct + ' / 100';
+                    gauge.setAttribute('stroke-dasharray', pct + ' ' + (100 - pct));
+
+                    if (pct >= 70) {
+                        gauge.setAttribute('stroke', '#198754');
+                        scoreBadge.style.cssText = 'background:#d1e7dd;color:#0a3622;';
+                        scoreLabel.textContent = 'Good SEO Score 🟢';
+                        scoreSub.textContent = 'Your SEO looks solid. Keep improving!';
+                    } else if (pct >= 40) {
+                        gauge.setAttribute('stroke', '#ffc107');
+                        scoreBadge.style.cssText = 'background:#fff3cd;color:#664d03;';
+                        scoreLabel.textContent = 'Average Score 🟡';
+                        scoreSub.textContent = 'Some improvements needed for better ranking.';
+                    } else {
+                        gauge.setAttribute('stroke', '#dc3545');
+                        scoreBadge.style.cssText = 'background:#f8d7da;color:#58151c;';
+                        scoreLabel.textContent = 'Poor SEO Score 🔴';
+                        scoreSub.textContent = 'Fill in meta fields and keywords to improve.';
+                    }
+                }
+
+                // Bind events
+                [titleEl, metaTitle, metaDesc, metaKw].forEach(el => {
+                    if (el) el.addEventListener('input', analyse);
+                });
+                // Content editor might use TinyMCE — poll it
+                setInterval(() => {
+                    if (window.tinymce && tinymce.activeEditor) {
+                        const val = tinymce.activeEditor.getContent();
+                        if (contentEl && contentEl.value !== val) {
+                            contentEl.value = val;
+                            analyse();
+                        }
+                    }
+                }, 2000);
+
+                // Run on load
+                analyse();
+            })();
         </script>
     @endpush
 @endsection

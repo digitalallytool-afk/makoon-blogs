@@ -211,6 +211,16 @@ if (articleCards.length > 0) {
       emptyState.classList.toggle('show', visibleCount === 0);
     }
 
+    // Reset scroll position on homepage latest blogs carousel and toggle navigation controls visibility
+    const carouselGrid = document.querySelector('.home-page #latest .article-grid');
+    if (carouselGrid) {
+      carouselGrid.scrollLeft = 0;
+    }
+    const latestControls = document.querySelector('[data-latest-carousel-controls]');
+    if (latestControls) {
+      latestControls.style.setProperty('display', visibleCount <= 1 ? 'none' : '', 'important');
+    }
+
     if (window.makoonsPagination?.refresh) {
       window.makoonsPagination.refresh('articles', true);
     }
@@ -838,4 +848,104 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
   });
+
+  // Dynamic Table of Contents (TOC) for Blog and Story details
+  const articleContent = document.querySelector('[data-article-content]');
+  const tocContainer = document.getElementById('toc-container');
+  const tocList = document.getElementById('toc-list');
+
+  if (articleContent && tocContainer && tocList) {
+    const headings = articleContent.querySelectorAll('h2, h3');
+    const TOC_VISIBLE_LIMIT = 6;
+
+    if (headings.length > 0) {
+      headings.forEach((heading, index) => {
+        // Generate dynamic ID if it doesn't exist
+        if (!heading.id) {
+          const slug = heading.textContent
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s_-]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+          heading.id = slug || `section-${index + 1}`;
+        }
+
+        // Add to Table of Contents list
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `#${heading.id}`;
+        a.textContent = heading.textContent;
+        li.appendChild(a);
+
+        // Indent sub-headings (h3)
+        if (heading.tagName.toLowerCase() === 'h3') {
+          li.classList.add('toc-subheading');
+        }
+
+        // Hide items beyond limit initially
+        if (index >= TOC_VISIBLE_LIMIT) {
+          li.classList.add('toc-hidden-item');
+          li.style.display = 'none';
+        }
+
+        tocList.appendChild(li);
+
+        // Smooth scroll implementation
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = document.getElementById(heading.id);
+          if (target) {
+            const offset = 90; // offset for sticky header
+            const bodyRect = document.body.getBoundingClientRect().top;
+            const elementRect = target.getBoundingClientRect().top;
+            const elementPosition = elementRect - bodyRect;
+            const offsetPosition = elementPosition - offset;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
+
+            // Update URL hash without jumping
+            history.pushState(null, null, `#${heading.id}`);
+          }
+        });
+      });
+
+      // Add Read more / Show less button if more than limit
+      if (headings.length > TOC_VISIBLE_LIMIT) {
+        const toggleLi = document.createElement('li');
+        toggleLi.classList.add('toc-toggle-item');
+        const remaining = headings.length - TOC_VISIBLE_LIMIT;
+
+        const toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.className = 'toc-toggle-btn';
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg> Read more <span class="toc-toggle-count">(${remaining} more)</span>`;
+
+        toggleBtn.addEventListener('click', () => {
+          const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+          const hiddenItems = tocList.querySelectorAll('.toc-hidden-item');
+
+          if (!isExpanded) {
+            hiddenItems.forEach(item => { item.style.display = ''; });
+            toggleBtn.setAttribute('aria-expanded', 'true');
+            toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg> Show less`;
+          } else {
+            hiddenItems.forEach(item => { item.style.display = 'none'; });
+            toggleBtn.setAttribute('aria-expanded', 'false');
+            toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg> Read more <span class="toc-toggle-count">(${remaining} more)</span>`;
+          }
+        });
+
+        toggleLi.appendChild(toggleBtn);
+        tocList.appendChild(toggleLi);
+      }
+
+      // Show the TOC container
+      tocContainer.style.display = 'block';
+    }
+  }
 });

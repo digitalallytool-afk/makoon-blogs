@@ -456,3 +456,97 @@ test('can update a post using a pre-existing media library URL for the featured 
     // Clean up
     @unlink($fullPath);
 });
+
+test('can create a post with a custom slug', function () {
+    $superAdmin = User::where('email', 'admin@example.com')->first();
+
+    $category = Category::create([
+        'name' => 'Custom Slug Category',
+        'slug' => 'custom-slug-category',
+    ]);
+
+    $author = Author::create([
+        'name' => 'Custom Slug Author',
+    ]);
+
+    $response = $this->actingAs($superAdmin)->post(route('posts.store'), [
+        'title' => 'My Article Title',
+        'slug' => 'this-is-a-completely-custom-slug',
+        'content' => 'Content here',
+        'status' => 'published',
+        'category_id' => $category->id,
+        'author_id' => $author->id,
+    ]);
+
+    $response->assertRedirect(route('allPost'));
+    $post = Post::where('title', 'My Article Title')->first();
+    expect($post)->not->toBeNull();
+    expect($post->slug)->toBe('this-is-a-completely-custom-slug');
+});
+
+test('can update a post with a custom slug', function () {
+    $superAdmin = User::where('email', 'admin@example.com')->first();
+
+    $category = Category::create([
+        'name' => 'Custom Slug Category 2',
+        'slug' => 'custom-slug-category-2',
+    ]);
+
+    $author = Author::create([
+        'name' => 'Custom Slug Author 2',
+    ]);
+
+    $post = Post::create([
+        'title' => 'Post Title',
+        'slug' => 'original-slug',
+        'content' => 'Initial content',
+        'category_id' => $category->id,
+        'author_id' => $author->id,
+    ]);
+
+    $response = $this->actingAs($superAdmin)->put(route('posts.update', $post->id), [
+        'title' => 'Post Title',
+        'slug' => 'new-custom-slug',
+        'content' => 'Updated content',
+        'status' => 'published',
+        'category_id' => $category->id,
+        'author_id' => $author->id,
+    ]);
+
+    $response->assertRedirect(route('allPost'));
+    $post->refresh();
+    expect($post->slug)->toBe('new-custom-slug');
+});
+
+test('will auto-update post slug on title change if no custom slug provided', function () {
+    $superAdmin = User::where('email', 'admin@example.com')->first();
+
+    $category = Category::create([
+        'name' => 'Custom Slug Category 3',
+        'slug' => 'custom-slug-category-3',
+    ]);
+
+    $author = Author::create([
+        'name' => 'Custom Slug Author 3',
+    ]);
+
+    $post = Post::create([
+        'title' => 'Original Title',
+        'slug' => 'original-title',
+        'content' => 'Initial content',
+        'category_id' => $category->id,
+        'author_id' => $author->id,
+    ]);
+
+    $response = $this->actingAs($superAdmin)->put(route('posts.update', $post->id), [
+        'title' => 'Completely New Title',
+        'content' => 'Updated content',
+        'status' => 'published',
+        'category_id' => $category->id,
+        'author_id' => $author->id,
+    ]);
+
+    $response->assertRedirect(route('allPost'));
+    $post->refresh();
+    expect($post->slug)->toBe('completely-new-title');
+});

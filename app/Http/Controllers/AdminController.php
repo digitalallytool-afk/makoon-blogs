@@ -151,6 +151,7 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255',
             'content' => 'required|string',
             'excerpt' => 'nullable|string',
             'status' => 'required|in:published,draft',
@@ -166,7 +167,7 @@ class AdminController extends Controller
             'meta_keywords' => 'nullable|string|max:500',
         ]);
 
-        $slug = Str::slug($validated['title']);
+        $slug = $request->filled('slug') ? Str::slug($request->input('slug')) : Str::slug($validated['title']);
         if (empty($slug)) {
             $slug = 'blog';
         }
@@ -280,6 +281,7 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255',
             'content' => 'required|string',
             'excerpt' => 'nullable|string',
             'status' => 'required|in:published,draft',
@@ -295,12 +297,28 @@ class AdminController extends Controller
             'meta_keywords' => 'nullable|string|max:500',
         ]);
 
-        // Handle slug generation if title changed
-        if ($validated['title'] !== $post->title) {
-            $slug = Str::slug($validated['title']);
-            if (empty($slug)) {
-                $slug = 'blog';
+        $slugChanged = false;
+        $baseSlug = null;
+
+        if ($request->filled('slug')) {
+            $inputSlug = Str::slug($request->input('slug'));
+            if (empty($inputSlug)) {
+                $inputSlug = 'blog';
             }
+            if ($inputSlug !== $post->slug) {
+                $baseSlug = $inputSlug;
+                $slugChanged = true;
+            }
+        } elseif ($validated['title'] !== $post->title) {
+            $baseSlug = Str::slug($validated['title']);
+            if (empty($baseSlug)) {
+                $baseSlug = 'blog';
+            }
+            $slugChanged = true;
+        }
+
+        if ($slugChanged) {
+            $slug = $baseSlug;
             $originalSlug = $slug;
             $count = 1;
             while (Post::where('slug', $slug)->where('id', '!=', $post->id)->exists()) {
@@ -1052,6 +1070,7 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255',
             'content' => 'required|string',
             'excerpt' => 'nullable|string',
             'status' => 'required|in:published,draft',
@@ -1065,7 +1084,7 @@ class AdminController extends Controller
             'meta_keywords' => 'nullable|string|max:500',
         ]);
 
-        $slug = Str::slug($validated['title']);
+        $slug = $request->filled('slug') ? Str::slug($request->input('slug')) : Str::slug($validated['title']);
         if (empty($slug)) {
             $slug = 'story';
         }
@@ -1140,6 +1159,7 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255',
             'content' => 'required|string',
             'excerpt' => 'nullable|string',
             'status' => 'required|in:published,draft',
@@ -1153,12 +1173,28 @@ class AdminController extends Controller
             'meta_keywords' => 'nullable|string|max:500',
         ]);
 
-        // Handle slug generation if title changed
-        if ($validated['title'] !== $story->title) {
-            $slug = Str::slug($validated['title']);
-            if (empty($slug)) {
-                $slug = 'story';
+        $slugChanged = false;
+        $baseSlug = null;
+
+        if ($request->filled('slug')) {
+            $inputSlug = Str::slug($request->input('slug'));
+            if (empty($inputSlug)) {
+                $inputSlug = 'story';
             }
+            if ($inputSlug !== $story->slug) {
+                $baseSlug = $inputSlug;
+                $slugChanged = true;
+            }
+        } elseif ($validated['title'] !== $story->title) {
+            $baseSlug = Str::slug($validated['title']);
+            if (empty($baseSlug)) {
+                $baseSlug = 'story';
+            }
+            $slugChanged = true;
+        }
+
+        if ($slugChanged) {
+            $slug = $baseSlug;
             $originalSlug = $slug;
             $count = 1;
             while (Story::where('slug', $slug)->where('id', '!=', $story->id)->exists()) {
@@ -1337,6 +1373,7 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'status' => 'required|in:published,draft',
             'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
@@ -1346,7 +1383,7 @@ class AdminController extends Controller
             'file_size' => 'required|integer',
         ]);
 
-        $slug = Str::slug($validated['name']);
+        $slug = $request->filled('slug') ? Str::slug($request->input('slug')) : Str::slug($validated['name']);
         if (empty($slug)) {
             $slug = 'printable';
         }
@@ -1411,6 +1448,7 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'status' => 'required|in:published,draft',
             'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
@@ -1420,12 +1458,28 @@ class AdminController extends Controller
             'file_size' => 'required|integer',
         ]);
 
-        // Handle slug generation if name changed
-        if ($validated['name'] !== $printable->name) {
-            $slug = Str::slug($validated['name']);
-            if (empty($slug)) {
-                $slug = 'printable';
+        $slugChanged = false;
+        $baseSlug = null;
+
+        if ($request->filled('slug')) {
+            $inputSlug = Str::slug($request->input('slug'));
+            if (empty($inputSlug)) {
+                $inputSlug = 'printable';
             }
+            if ($inputSlug !== $printable->slug) {
+                $baseSlug = $inputSlug;
+                $slugChanged = true;
+            }
+        } elseif ($validated['name'] !== $printable->name) {
+            $baseSlug = Str::slug($validated['name']);
+            if (empty($baseSlug)) {
+                $baseSlug = 'printable';
+            }
+            $slugChanged = true;
+        }
+
+        if ($slugChanged) {
+            $slug = $baseSlug;
             $originalSlug = $slug;
             $count = 1;
             while (Printable::where('slug', $slug)->where('id', '!=', $printable->id)->exists()) {
@@ -1687,6 +1741,7 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255',
             'session_category_id' => 'required|exists:session_categories,id',
             'video_url' => 'required|string',
             'description' => 'nullable|string',
@@ -1702,7 +1757,7 @@ class AdminController extends Controller
                 ->withErrors(['video_url' => 'The video URL must be a valid YouTube link (e.g. watch link, sharing link, or embed link).']);
         }
 
-        $slug = Str::slug($validated['title']);
+        $slug = $request->filled('slug') ? Str::slug($request->input('slug')) : Str::slug($validated['title']);
         if (empty($slug)) {
             $slug = 'session';
         }
@@ -1767,6 +1822,7 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255',
             'session_category_id' => 'required|exists:session_categories,id',
             'video_url' => 'required|string',
             'description' => 'nullable|string',
@@ -1782,11 +1838,28 @@ class AdminController extends Controller
                 ->withErrors(['video_url' => 'The video URL must be a valid YouTube link (e.g. watch link, sharing link, or embed link).']);
         }
 
-        if ($validated['title'] !== $videoSession->title) {
-            $slug = Str::slug($validated['title']);
-            if (empty($slug)) {
-                $slug = 'session';
+        $slugChanged = false;
+        $baseSlug = null;
+
+        if ($request->filled('slug')) {
+            $inputSlug = Str::slug($request->input('slug'));
+            if (empty($inputSlug)) {
+                $inputSlug = 'session';
             }
+            if ($inputSlug !== $videoSession->slug) {
+                $baseSlug = $inputSlug;
+                $slugChanged = true;
+            }
+        } elseif ($validated['title'] !== $videoSession->title) {
+            $baseSlug = Str::slug($validated['title']);
+            if (empty($baseSlug)) {
+                $baseSlug = 'session';
+            }
+            $slugChanged = true;
+        }
+
+        if ($slugChanged) {
+            $slug = $baseSlug;
             $originalSlug = $slug;
             $count = 1;
             while (VideoSession::where('slug', $slug)->where('id', '!=', $videoSession->id)->exists()) {

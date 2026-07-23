@@ -103,6 +103,17 @@
                 <img src="{{ asset($story->featured_image) }}" alt="{{ $story->title }}" style="width: 100%; height: auto; display: block;">
               </div>
             @endif
+            <!-- Dynamic Table of Contents (TOC) -->
+            <div class="toc-container" id="toc-container" style="display: none;">
+                <div class="toc-card">
+                    <div class="toc-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="toc-icon"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                        <span>On this story</span>
+                    </div>
+                    <ul class="toc-list" id="toc-list"></ul>
+                </div>
+            </div>
+
             {!! $story->content !!}
           </article>
         </div>

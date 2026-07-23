@@ -7,6 +7,7 @@
     'preschool blogs, parenting tips, early learning, daycare, preschool activities, children
     education, parenting stories, printable worksheets, parenting sessions')
 @section('canonical_url', route('home'))
+@section('body_class', 'home-page')
 
 @section('content')
     <main>
@@ -31,7 +32,8 @@
                         </div>
                     </div>
                     <div class="hero-media" role="img"
-                        aria-label="Children learning together in a bright preschool classroom">
+                        aria-label="Children learning together in a bright preschool classroom"
+                        style="--hero-bg: url('{{ $heroPost && $heroPost->featured_image ? asset($heroPost->featured_image) : asset('uploads/2024/10/kids-happily-builds-blocks-in-classroom-makoons.jpg') }}');">
                         <a href="{{ $heroPost ? route('blog.show', $heroPost->slug) : route('blogs') }}"
                             class="hero-feature-note" style="text-decoration: none; color: inherit; display: block;">
                             <span>This week</span>
@@ -142,9 +144,9 @@
                     </div>
                     <div class="mobile-carousel-controls" aria-label="Trending blog slider controls">
                         <button type="button" data-carousel-target=".trending-post-carousel" data-carousel-direction="-1"
-                            aria-label="Previous trending article">‹</button>
+                            aria-label="Previous trending article"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
                         <button type="button" data-carousel-target=".trending-post-carousel" data-carousel-direction="1"
-                            aria-label="Next trending article">›</button>
+                            aria-label="Next trending article"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
                     </div>
                 </div>
             </div>
@@ -200,7 +202,7 @@
                     </label>
                 </div>
                 <div class="article-grid">
-                    @foreach ($posts->take(8) as $post)
+                    @foreach ($posts->take(32) as $post)
                         @php
                             $mainCategorySlug = $post->category->parent
                                 ? $post->category->parent->slug
@@ -277,6 +279,12 @@
                         </article>
                     @endforeach
                 </div>
+                <div class="mobile-carousel-controls" aria-label="Latest blog slider controls" data-latest-carousel-controls>
+                    <button type="button" data-carousel-target="#latest .article-grid" data-carousel-direction="-1"
+                        aria-label="Previous blog"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+                    <button type="button" data-carousel-target="#latest .article-grid" data-carousel-direction="1"
+                        aria-label="Next blog"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+                </div>
                 <div style="display: flex; justify-content: center; margin-top: 3.5rem;">
                     <a href="{{ route('blogs') }}" class="primary-link" style="margin-top: 0;">Explore all posts <span
                             style="margin-left: 8px;" aria-hidden="true">→</span></a>
@@ -295,9 +303,9 @@
                     </div>
                     <div class="slider-actions" aria-label="Slider controls">
                         <button class="slider-button" type="button" data-slider-prev
-                            aria-label="Previous featured article">‹</button>
+                            aria-label="Previous featured article"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
                         <button class="slider-button" type="button" data-slider-next
-                            aria-label="Next featured article">›</button>
+                            aria-label="Next featured article"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
                     </div>
                 </div>
 
@@ -501,9 +509,9 @@
                     </div>
                     <div class="mobile-carousel-controls" aria-label="Story slider controls">
                         <button type="button" data-carousel-target=".story-stack" data-carousel-direction="-1"
-                            aria-label="Previous story">‹</button>
+                            aria-label="Previous story"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
                         <button type="button" data-carousel-target=".story-stack" data-carousel-direction="1"
-                            aria-label="Next story">›</button>
+                            aria-label="Next story"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
                     </div>
                 </div>
                 <div style="display: flex; justify-content: center; margin-top: 3.5rem;">
@@ -565,9 +573,9 @@
                 </div>
                 <div class="mobile-carousel-controls" aria-label="Printable slider controls">
                     <button type="button" data-carousel-target=".printables-section .printable-collage-grid"
-                        data-carousel-direction="-1" aria-label="Previous printable">‹</button>
+                        data-carousel-direction="-1" aria-label="Previous printable"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
                     <button type="button" data-carousel-target=".printables-section .printable-collage-grid"
-                        data-carousel-direction="1" aria-label="Next printable">›</button>
+                        data-carousel-direction="1" aria-label="Next printable"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
                 </div>
             </div>
         </section>
@@ -629,9 +637,9 @@
                 </div>
                 <div class="mobile-carousel-controls" aria-label="Parenting session slider controls">
                     <button type="button" data-carousel-target=".parent-session-grid" data-carousel-direction="-1"
-                        aria-label="Previous parenting session">‹</button>
+                        aria-label="Previous parenting session"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
                     <button type="button" data-carousel-target=".parent-session-grid" data-carousel-direction="1"
-                        aria-label="Next parenting session">›</button>
+                        aria-label="Next parenting session"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
                 </div>
             </div>
         </section>

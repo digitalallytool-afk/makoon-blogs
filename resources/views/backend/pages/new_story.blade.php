@@ -62,6 +62,15 @@
                                            style="font-weight: 600; padding: 12px 15px;">
                                 </div>
 
+                                <div class="mb-4">
+                                    <label for="story-slug" class="form-label font-weight-bold text-secondary font-12 text-uppercase">URL Slug</label>
+                                    <input type="text" class="form-control border-0 bg-light-subtle shadow-none font-14"
+                                           id="story-slug" name="slug" value="{{ old('slug') }}"
+                                           placeholder="Optional: Enter custom URL slug (e.g. custom-slug)..."
+                                           style="padding: 10px 15px;">
+                                    <small class="text-muted mt-1 d-block font-11">Leave blank to automatically generate from the title.</small>
+                                </div>
+
                                 <!-- Editor -->
                                 <div class="mb-4">
                                     <label for="story-content" class="form-label font-weight-bold text-secondary font-12 text-uppercase">Story Content</label>

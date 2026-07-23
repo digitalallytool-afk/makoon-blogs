@@ -52,6 +52,15 @@
                                 </div>
 
                                 <div class="mb-4">
+                                    <label for="session-slug" class="form-label font-weight-bold text-secondary font-12 text-uppercase">URL Slug</label>
+                                    <input type="text" class="form-control border-0 bg-light-subtle shadow-none font-14"
+                                           id="session-slug" name="slug" value="{{ old('slug') }}"
+                                           placeholder="Optional: Enter custom URL slug (e.g. custom-slug)..."
+                                           style="padding: 10px 15px;">
+                                    <small class="text-muted mt-1 d-block font-11">Leave blank to automatically generate from the title.</small>
+                                </div>
+
+                                <div class="mb-4">
                                     <label for="session_category_id" class="form-label font-weight-bold text-secondary font-12 text-uppercase">Session Category</label>
                                     <select class="form-select border-0 bg-light" id="session_category_id" name="session_category_id" required style="padding: 10px 15px;">
                                         <option value="" disabled selected>Select Category</option>

@@ -67,6 +67,15 @@
                                            style="font-weight: 600; padding: 12px 15px;">
                                 </div>
 
+                                <div class="mb-4">
+                                    <label for="printable-slug" class="form-label font-weight-bold text-secondary font-12 text-uppercase">URL Slug</label>
+                                    <input type="text" class="form-control border-0 bg-light-subtle shadow-none font-14"
+                                           id="printable-slug" name="slug" value="{{ old('slug') }}"
+                                           placeholder="Optional: Enter custom URL slug (e.g. custom-slug)..."
+                                           style="padding: 10px 15px;">
+                                    <small class="text-muted mt-1 d-block font-11">Leave blank to automatically generate from the name.</small>
+                                </div>
+
                                 <div class="mb-0">
                                     <label for="printable-desc" class="form-label font-weight-bold text-secondary font-12 text-uppercase">Description</label>
                                     <textarea class="form-control border-0 bg-light" id="printable-desc" name="description" rows="5"
