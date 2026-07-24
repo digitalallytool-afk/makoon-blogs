@@ -142,13 +142,11 @@ class SitemapService
 
     /**
      * Build and write public/printables-sitemap.xml.
+     * Only the /printables index page is included — individual printable URLs
+     * are admin-protected routes and must not be indexed by search engines.
      */
     private function generatePrintablesSitemap(): void
     {
-        $printables = Printable::published()
-            ->latest('updated_at')
-            ->get();
-
         $baseUrl = rtrim(config('app.url'), '/');
         $baseDomainUrl = str_replace('/blogs', '', $baseUrl);
 
@@ -156,18 +154,8 @@ class SitemapService
         $xml .= '<?xml-stylesheet type="text/xsl" href="'.$baseUrl.'/sitemap.xsl"?>'."\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
 
-        // Printables Index Page
+        // Printables Index Page only — individual /printables/{slug} are admin routes
         $xml .= $this->buildUrlEntry($baseDomainUrl.'/printables', now()->toAtomString(), 'weekly', '0.8');
-
-        // Printables sheets
-        foreach ($printables as $printable) {
-            $xml .= $this->buildUrlEntry(
-                $baseDomainUrl.'/printables/'.$printable->slug,
-                $printable->updated_at->toAtomString(),
-                'weekly',
-                '0.8'
-            );
-        }
 
         $xml .= '</urlset>';
 
