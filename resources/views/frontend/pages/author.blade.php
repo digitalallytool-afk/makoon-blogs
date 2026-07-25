@@ -80,7 +80,6 @@
                   <div>
                     <span>{{ $post->category->name ?? '' }} · 5 min read</span>
                     <h3><a href="{{ $articleUrl }}">{{ $post->title }}</a></h3>
-                    <p>{{ $post->excerpt }}</p>
                     <small>{{ $post->created_at->format('F j, Y') }} · {{ $viewsStr }} views</small>
                   </div>
                 </article>

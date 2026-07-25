@@ -1,3 +1,12 @@
+@font-face {
+  font-family: 'Outfit';
+  src: url('../fonts/Outfit/Outfit-VariableFont_wght.ttf') format('truetype-variations'),
+       url('../fonts/Outfit/Outfit-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* 
  * Makoons Articles Premium Stylesheet
  * Custom designed for children's learning, parenting, and growing up.
@@ -59,13 +68,7 @@ body {
   margin: 0;
   color: var(--ink);
   background: var(--cream);
-  font-family:
-    "Airbnb Cereal VF",
-    "Airbnb Cereal App",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  font-family: "Outfit", sans-serif;
   font-size: 16px;
   line-height: 1.62;
   text-rendering: optimizeLegibility;
@@ -2367,7 +2370,7 @@ time {
 
 /* --- Softer Airbnb-like typography pass --- */
 body {
-  font-family: "Airbnb Cereal VF", "Airbnb Cereal App", "Circular", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: "Outfit", sans-serif;
 }
 
 h1,
@@ -2429,7 +2432,7 @@ h3,
 
 body {
   color: var(--airbnb-text);
-  font-family: "Airbnb Cereal VF", "Airbnb Cereal App", "Circular", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: "Outfit", sans-serif;
   font-size: 16px;
   line-height: 1.5;
 }
@@ -2549,7 +2552,7 @@ button,
 input,
 textarea,
 select {
-  font-family: "Airbnb Cereal VF", "Airbnb Cereal App", "Circular", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: "Outfit", sans-serif;
 }
 
 h1,
@@ -13459,6 +13462,57 @@ body.all-sessions-page #latest .article-search-field svg {
     margin-inline: auto !important;
   }
 }
+
+/* ===================================================
+   OUTFIT FONT HEADING SPECIFICATION OVERRIDES
+   =================================================== */
+h1, .h1 {
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+h2, .h2 {
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+h3, .h3 {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+/* Article Detail Content Headings */
+.article-content h2, 
+[data-article-content] h2,
+.clean-article h2 {
+  font-size: 22px !important;
+  font-weight: 400 !important;
+  line-height: 1.3 !important;
+}
+
+.article-content h3, 
+[data-article-content] h3,
+.clean-article h3 {
+  font-size: 18px !important;
+  font-weight: 400 !important;
+  line-height: 1.35 !important;
+}
+
+/* Page Masthead Main Titles */
+.article-masthead h1,
+.all-posts-masthead h1,
+.all-stories-masthead h1,
+.all-printables-masthead h1,
+.sessions-masthead h1,
+.why-masthead h1 {
+  font-size: clamp(28px, 4.2vw, 36px) !important;
+  font-weight: 400 !important;
+  line-height: 1.2 !important;
+}
+
 
 
 

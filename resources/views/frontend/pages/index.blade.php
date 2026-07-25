@@ -250,7 +250,6 @@
                                 <span class="card-tag {{ $tagClass }}"><a
                                         href="{{ route('category.show', $subCategorySlug) }}">{{ $post->category->name ?? '' }}</a></span>
                                 <h3><a href="{{ $articleUrl }}">{{ $post->title }}</a></h3>
-                                <p>{{ $post->excerpt }}</p>
                                 <div class="article-meta">
                                     <a class="post-author"
                                         href="{{ route('author') }}?author={{ Str::slug($post->author->name ?? '') }}"

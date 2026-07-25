@@ -257,7 +257,6 @@
                                     5 min read
                                 </span>
                                 <h3><a href="{{ route('blog.show', $tPost->slug) }}">{{ $tPost->title }}</a></h3>
-                                <p>{{ $tPost->excerpt }}</p>
                                 <div class="card-bottom-meta">
                                     <span class="view-count" aria-label="{{ $tViewsStr }} views"><svg
                                             aria-hidden="true" viewBox="0 0 24 24">
