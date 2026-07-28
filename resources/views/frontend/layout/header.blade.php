@@ -4,11 +4,22 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Makoons Blogs')</title>
+    @hasSection('title')
+        <title>{!! html_entity_decode(View::getSection('title'), ENT_QUOTES, 'UTF-8') !!}</title>
+    @else
+        <title>Makoons Blogs</title>
+    @endif
     <!-- Favicon -->
     <link rel="icon" href="{{ asset('uploads/2026/06/favicon.png') }}" type="image/png" />
-    <meta name="description"
-        content="@yield('meta_description', 'Makoons Blogs for preschool, daycare, parenting, activities, and early learning blog posts.')">
+    @hasSection('meta_description')
+        @php
+            $metaDesc = html_entity_decode(View::getSection('meta_description'), ENT_QUOTES, 'UTF-8');
+            $metaDesc = str_replace('"', '&quot;', $metaDesc);
+        @endphp
+        <meta name="description" content="{!! $metaDesc !!}">
+    @else
+        <meta name="description" content="Makoons Blogs for preschool, daycare, parenting, activities, and early learning blog posts.">
+    @endif
     @hasSection('meta_keywords')
     <meta name="keywords" content="@yield('meta_keywords')">
     @endif

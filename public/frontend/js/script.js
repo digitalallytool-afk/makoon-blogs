@@ -948,4 +948,63 @@ document.addEventListener("DOMContentLoaded", function () {
       tocContainer.style.display = 'block';
     }
   }
+
+  // Auto-embed YouTube link strings/anchors inside article content
+  if (articleContent) {
+    // 1. Helper to extract YouTube video ID from URL
+    function getYouTubeIdFromUrl(url) {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : null;
+    }
+
+    // 2. Parse YouTube links that are wrapped in standard anchor elements
+    const links = articleContent.querySelectorAll('a');
+    links.forEach(function(link) {
+      const url = link.getAttribute('href');
+      if (url && (url.includes('youtube.com') || url.includes('youtu.be'))) {
+        const videoId = getYouTubeIdFromUrl(url);
+        if (videoId) {
+          const linkText = link.textContent.trim();
+          // If the link text looks like a URL, replace it with an embed
+          if (linkText === url || linkText.includes('youtube.com') || linkText.includes('youtu.be')) {
+            const container = document.createElement('div');
+            container.className = 'embedded-video-container';
+            container.style.position = 'relative';
+            container.style.paddingBottom = '56.25%';
+            container.style.height = '0';
+            container.style.overflow = 'hidden';
+            container.style.maxWidth = '100%';
+            container.style.margin = '1.5rem 0';
+            container.style.borderRadius = '12px';
+            
+            const iframe = document.createElement('iframe');
+            iframe.src = 'https://www.youtube.com/embed/' + videoId;
+            iframe.style.position = 'absolute';
+            iframe.style.top = '0';
+            iframe.style.left = '0';
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = '0';
+            iframe.setAttribute('allowfullscreen', 'true');
+            
+            container.appendChild(iframe);
+            link.parentNode.replaceChild(container, link);
+          }
+        }
+      }
+    });
+
+    // 3. Parse YouTube links that are plain text strings inside paragraph tags
+    const paragraphs = articleContent.querySelectorAll('p');
+    paragraphs.forEach(function(p) {
+      const text = p.textContent.trim();
+      if (text.startsWith('https://www.youtube.com') || text.startsWith('https://youtu.be') || text.startsWith('http://www.youtube.com') || text.startsWith('http://youtu.be')) {
+        const videoId = getYouTubeIdFromUrl(text);
+        if (videoId) {
+          p.innerHTML = '<div class="embedded-video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; margin: 1.5rem 0; border-radius: 12px;"><iframe src="https://www.youtube.com/embed/' + videoId + '" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allowfullscreen></iframe></div>';
+        }
+      }
+    });
+  }
 });

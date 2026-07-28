@@ -357,6 +357,13 @@
         <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
         <script>
             $(document).ready(function() {
+                // Helper to extract YouTube ID
+                function getYouTubeId(url) {
+                    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                    const match = url.match(regExp);
+                    return (match && match[2].length === 11) ? match[2] : null;
+                }
+
                 // Define Custom Media Library Button for Summernote
                 var MediaLibraryButton = function (context) {
                     var ui = $.summernote.ui;
@@ -367,6 +374,28 @@
                             openMediaLibraryModal(function(url) {
                                 context.invoke('editor.insertImage', url);
                             });
+                        }
+                    });
+                    return button.render();
+                };
+
+                // Define Custom YouTube Insert Button for Summernote
+                var YouTubeVideoButton = function (context) {
+                    var ui = $.summernote.ui;
+                    var button = ui.button({
+                        contents: '<i class="bx bxl-youtube text-danger"/> YouTube Video',
+                        tooltip: 'Insert YouTube Video',
+                        click: function () {
+                            var url = prompt("Enter YouTube video link (e.g., https://youtu.be/...):");
+                            if (url) {
+                                var videoId = getYouTubeId(url);
+                                if (videoId) {
+                                    var embedHtml = '<div class="embedded-video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; margin: 1.5rem 0; border-radius: 12px;"><iframe src="https://www.youtube.com/embed/' + videoId + '" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allowfullscreen></iframe></div>';
+                                    context.invoke('editor.pasteHTML', embedHtml);
+                                } else {
+                                    alert("Invalid YouTube URL. Please make sure to copy a valid YouTube video link.");
+                                }
+                            }
                         }
                     });
                     return button.render();
@@ -383,11 +412,12 @@
                         ['color', ['color']],
                         ['para', ['ul', 'ol', 'paragraph', 'height']],
                         ['table', ['table']],
-                        ['insert', ['mediaLibrary', 'link', 'video', 'hr']],
+                        ['insert', ['mediaLibrary', 'link', 'youtubeVideo', 'hr']],
                         ['view', ['fullscreen', 'codeview', 'help']]
                     ],
                     buttons: {
-                        mediaLibrary: MediaLibraryButton
+                        mediaLibrary: MediaLibraryButton,
+                        youtubeVideo: YouTubeVideoButton
                     },
                     dialogsInBody: true,
                     callbacks: {
