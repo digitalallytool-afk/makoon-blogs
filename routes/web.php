@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -368,50 +369,9 @@ Route::get('/author.html', function () {
 
 require __DIR__.'/auth.php';
 
-Route::get('/sitemap.xml', function () {
-    $path = public_path('sitemap.xml');
-    if (file_exists($path)) {
-        return response(file_get_contents($path), 200)
-            ->header('Content-Type', 'application/xml');
-    }
-    abort(404);
-});
-
-Route::get('/blogs-sitemap.xml', function () {
-    $path = public_path('blogs-sitemap.xml');
-    if (file_exists($path)) {
-        return response(file_get_contents($path), 200)
-            ->header('Content-Type', 'application/xml');
-    }
-    abort(404);
-});
-
-Route::get('/stories-sitemap.xml', function () {
-    $path = public_path('stories-sitemap.xml');
-    if (file_exists($path)) {
-        return response(file_get_contents($path), 200)
-            ->header('Content-Type', 'application/xml');
-    }
-    abort(404);
-});
-
-Route::get('/printables-sitemap.xml', function () {
-    $path = public_path('printables-sitemap.xml');
-    if (file_exists($path)) {
-        return response(file_get_contents($path), 200)
-            ->header('Content-Type', 'application/xml');
-    }
-    abort(404);
-});
-
-Route::get('/sessions-sitemap.xml', function () {
-    $path = public_path('sessions-sitemap.xml');
-    if (file_exists($path)) {
-        return response(file_get_contents($path), 200)
-            ->header('Content-Type', 'application/xml');
-    }
-    abort(404);
-});
+Route::get('/{file}', [SitemapController::class, 'show'])
+    ->whereIn('file', SitemapController::FILES)
+    ->name('sitemap.show');
 
 Route::get('/sitemap.xsl', function () {
     $path = public_path('sitemap.xsl');

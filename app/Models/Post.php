@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
+use App\Traits\HasScheduledPublishing;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Post extends Model
 {
+    use HasScheduledPublishing;
+
     protected $fillable = [
         'title',
         'slug',
@@ -36,22 +38,6 @@ class Post extends Model
             'is_selected' => 'boolean',
             'is_trending' => 'boolean',
         ];
-    }
-
-    /**
-     * Scope to only published posts.
-     */
-    public function scopePublished(Builder $query): Builder
-    {
-        return $query->where('status', 'published');
-    }
-
-    /**
-     * Check if this post is published.
-     */
-    public function isPublished(): bool
-    {
-        return $this->status === 'published';
     }
 
     /**

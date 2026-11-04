@@ -222,7 +222,16 @@
                                 <div class="d-flex align-items-center gap-2 mb-3 py-2 px-3 bg-light rounded font-13">
                                     <i class="bx bx-info-circle text-secondary fs-5"></i>
                                     <span class="text-secondary">Status: </span>
-                                    <span class="font-weight-bold text-dark text-capitalize" id="status-label">{{ $story->status }}</span>
+                                    <span class="font-weight-bold text-dark text-capitalize" id="status-label">{{ $story->isScheduled() ? 'Scheduled' : $story->status }}</span>
+                                </div>
+                                <!-- Schedule (India time) -->
+                                <div class="mb-3">
+                                    <label class="form-label font-weight-bold text-dark font-13" for="published-at">Schedule (IST)</label>
+                                    <input type="datetime-local" class="form-control font-13 @error('published_at') is-invalid @enderror" id="published-at" name="published_at" value="{{ old('published_at', $story->scheduledAtForInput()) }}">
+                                    @error('published_at')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                    <small class="text-muted d-block font-11 mt-1">Leave empty to publish immediately. Pick a future date and time (India time), then click the button. It goes live automatically.</small>
                                 </div>
                                 <!-- View Count -->
                                 <div class="mb-0">
@@ -493,6 +502,23 @@
                 document.getElementById('featured-image-preview').src = '';
                 document.getElementById('featured-image-preview-container').classList.add('d-none');
             }
+
+            // Switch the publish button to "Schedule" while a date is chosen
+            (function () {
+                const scheduleInput = document.getElementById('published-at');
+                const publishButton = document.getElementById('btn-publish');
+                if (!scheduleInput || !publishButton) {
+                    return;
+                }
+                const defaultLabel = publishButton.innerHTML;
+                const syncPublishButton = function () {
+                    publishButton.innerHTML = scheduleInput.value
+                        ? '<i class="bx bx-time-five me-1"></i>Schedule'
+                        : defaultLabel;
+                };
+                scheduleInput.addEventListener('input', syncPublishButton);
+                syncPublishButton();
+            })();
 
             // Set hidden status field and update the label before form submits
             function setStatus(value) {

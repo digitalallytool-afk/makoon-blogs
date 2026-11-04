@@ -10,11 +10,11 @@ use App\Models\User;
 use App\Services\SitemapService;
 
 beforeEach(function () {
-    $this->sitemapPath = public_path('sitemap.xml');
-    $this->blogsSitemapPath = public_path('blogs-sitemap.xml');
-    $this->storiesSitemapPath = public_path('stories-sitemap.xml');
-    $this->printablesSitemapPath = public_path('printables-sitemap.xml');
-    $this->sessionsSitemapPath = public_path('sessions-sitemap.xml');
+    $this->sitemapPath = SitemapService::path('sitemap.xml');
+    $this->blogsSitemapPath = SitemapService::path('blogs-sitemap.xml');
+    $this->storiesSitemapPath = SitemapService::path('stories-sitemap.xml');
+    $this->printablesSitemapPath = SitemapService::path('printables-sitemap.xml');
+    $this->sessionsSitemapPath = SitemapService::path('sessions-sitemap.xml');
     $this->robotsPath = public_path('robots.txt');
 
     $this->sitemapBackup = file_exists($this->sitemapPath) ? file_get_contents($this->sitemapPath) : null;

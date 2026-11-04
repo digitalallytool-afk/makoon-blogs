@@ -32,11 +32,13 @@ class AdminController extends Controller
     public function index(): View
     {
         $totalPosts = Post::count();
-        $publishedPosts = Post::where('status', 'published')->count();
+        $publishedPosts = Post::published()->count();
+        $scheduledPosts = Post::scheduled()->count();
         $draftPosts = Post::where('status', 'draft')->count();
 
         $totalStories = Story::count();
-        $publishedStories = Story::where('status', 'published')->count();
+        $publishedStories = Story::published()->count();
+        $scheduledStories = Story::scheduled()->count();
 
         $totalPrintables = Printable::count();
         $publishedPrintables = Printable::where('status', 'published')->count();
@@ -53,6 +55,8 @@ class AdminController extends Controller
             'totalPosts',
             'publishedPosts',
             'draftPosts',
+            'scheduledPosts',
+            'scheduledStories',
             'totalStories',
             'publishedStories',
             'totalPrintables',
@@ -77,7 +81,11 @@ class AdminController extends Controller
 
         $posts = Post::with(['category', 'author', 'updater'])
             ->when($search, fn ($q) => $q->where('title', 'like', "%{$search}%"))
-            ->when($status, fn ($q) => $q->where('status', $status))
+            ->when($status, fn ($q) => match ($status) {
+                'published' => $q->published(),
+                'scheduled' => $q->scheduled(),
+                default => $q->where('status', $status),
+            })
             ->when($category, fn ($q) => $q->where('category_id', $category))
             ->latest()
             ->paginate(12)
@@ -107,7 +115,11 @@ class AdminController extends Controller
 
         $posts = Post::with(['category', 'author'])
             ->when($search, fn ($q) => $q->where('title', 'like', "%{$search}%"))
-            ->when($status, fn ($q) => $q->where('status', $status))
+            ->when($status, fn ($q) => match ($status) {
+                'published' => $q->published(),
+                'scheduled' => $q->scheduled(),
+                default => $q->where('status', $status),
+            })
             ->when($category, fn ($q) => $q->where('category_id', $category))
             ->latest()
             ->get();
@@ -155,6 +167,7 @@ class AdminController extends Controller
             'content' => 'required|string',
             'excerpt' => 'nullable|string',
             'status' => 'required|in:published,draft',
+            'published_at' => 'nullable|date',
             'category_id' => 'required|exists:categories,id',
             'author_id' => 'required|exists:authors,id',
             'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
@@ -187,7 +200,7 @@ class AdminController extends Controller
             $imagePath = $request->input('featured_image_url');
         }
 
-        Post::create([
+        $post = new Post([
             'title' => $validated['title'],
             'slug' => $slug,
             'content' => $validated['content'],
@@ -207,13 +220,16 @@ class AdminController extends Controller
                 ? rtrim(config('app.url'), '/').'/'.$slug
                 : rtrim(config('app.url'), '/').'/blogs/'.$slug,
         ]);
+        $scheduledAt = Post::resolveScheduledAt($request->input('published_at'), $validated['status']);
+        $post->applySchedule($scheduledAt);
+        $post->save();
 
         // Rebuild sitemap & robots.txt to reflect current published posts
         $sitemapService->generate();
 
         $message = $validated['status'] === 'draft'
             ? 'Blog saved as draft successfully.'
-            : 'Blog published successfully.';
+            : ($scheduledAt ? 'Blog scheduled for '.$post->scheduledAtForDisplay().'.' : 'Blog published successfully.');
 
         return redirect()->route('allPost')->with('success', $message);
     }
@@ -285,6 +301,7 @@ class AdminController extends Controller
             'content' => 'required|string',
             'excerpt' => 'nullable|string',
             'status' => 'required|in:published,draft',
+            'published_at' => 'nullable|date',
             'category_id' => 'required|exists:categories,id',
             'author_id' => 'required|exists:authors,id',
             'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
@@ -358,6 +375,7 @@ class AdminController extends Controller
         $post->meta_title = $validated['meta_title'] ?? null;
         $post->meta_description = $validated['meta_description'] ?? null;
         $post->meta_keywords = $validated['meta_keywords'] ?? null;
+        $post->applySchedule(Post::resolveScheduledAt($request->input('published_at'), $validated['status']));
 
         $post->save();
 
@@ -1041,7 +1059,11 @@ class AdminController extends Controller
 
         $stories = Story::with(['storyCategory', 'author', 'updater'])
             ->when($search, fn ($q) => $q->where('title', 'like', "%{$search}%"))
-            ->when($status, fn ($q) => $q->where('status', $status))
+            ->when($status, fn ($q) => match ($status) {
+                'published' => $q->published(),
+                'scheduled' => $q->scheduled(),
+                default => $q->where('status', $status),
+            })
             ->when($category, fn ($q) => $q->where('story_category_id', $category))
             ->latest()
             ->paginate(12)
@@ -1074,6 +1096,7 @@ class AdminController extends Controller
             'content' => 'required|string',
             'excerpt' => 'nullable|string',
             'status' => 'required|in:published,draft',
+            'published_at' => 'nullable|date',
             'story_category_id' => 'required|exists:story_categories,id',
             'author_id' => 'required|exists:authors,id',
             'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
@@ -1104,7 +1127,7 @@ class AdminController extends Controller
             $imagePath = $request->input('featured_image_url');
         }
 
-        Story::create([
+        $story = new Story([
             'title' => $validated['title'],
             'slug' => $slug,
             'content' => $validated['content'],
@@ -1120,13 +1143,16 @@ class AdminController extends Controller
             'meta_keywords' => $validated['meta_keywords'] ?? null,
             'canonical_url' => rtrim(config('app.url'), '/').'/stories/'.$slug,
         ]);
+        $scheduledAt = Story::resolveScheduledAt($request->input('published_at'), $validated['status']);
+        $story->applySchedule($scheduledAt);
+        $story->save();
 
         // Rebuild sitemap & robots.txt to reflect current published stories
         $sitemapService->generate();
 
         $message = $validated['status'] === 'draft'
             ? 'Story saved as draft successfully.'
-            : 'Story published successfully.';
+            : ($scheduledAt ? 'Story scheduled for '.$story->scheduledAtForDisplay().'.' : 'Story published successfully.');
 
         return redirect()->route('allStory')->with('success', $message);
     }
@@ -1163,6 +1189,7 @@ class AdminController extends Controller
             'content' => 'required|string',
             'excerpt' => 'nullable|string',
             'status' => 'required|in:published,draft',
+            'published_at' => 'nullable|date',
             'story_category_id' => 'required|exists:story_categories,id',
             'author_id' => 'required|exists:authors,id',
             'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:20480',
@@ -1230,6 +1257,7 @@ class AdminController extends Controller
         $story->meta_title = $validated['meta_title'] ?? null;
         $story->meta_description = $validated['meta_description'] ?? null;
         $story->meta_keywords = $validated['meta_keywords'] ?? null;
+        $story->applySchedule(Story::resolveScheduledAt($request->input('published_at'), $validated['status']));
 
         $story->save();
 
@@ -1284,7 +1312,11 @@ class AdminController extends Controller
 
         $stories = Story::with(['storyCategory', 'author'])
             ->when($search, fn ($q) => $q->where('title', 'like', "%{$search}%"))
-            ->when($status, fn ($q) => $q->where('status', $status))
+            ->when($status, fn ($q) => match ($status) {
+                'published' => $q->published(),
+                'scheduled' => $q->scheduled(),
+                default => $q->where('status', $status),
+            })
             ->when($category, fn ($q) => $q->where('story_category_id', $category))
             ->latest()
             ->get();

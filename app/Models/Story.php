@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
+use App\Traits\HasScheduledPublishing;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Story extends Model
 {
+    use HasScheduledPublishing;
+
     protected $fillable = [
         'title',
         'slug',
@@ -24,22 +26,6 @@ class Story extends Model
         'meta_keywords',
         'canonical_url',
     ];
-
-    /**
-     * Scope to only published stories.
-     */
-    public function scopePublished(Builder $query): Builder
-    {
-        return $query->where('status', 'published');
-    }
-
-    /**
-     * Check if this story is published.
-     */
-    public function isPublished(): bool
-    {
-        return $this->status === 'published';
-    }
 
     /**
      * Get the story category that this story belongs to.
@@ -76,6 +62,7 @@ class Story extends Model
 
         // Clean /blogs/stories/ to /stories/ and any /blogs/blogs/ to /blogs/
         $cleaned = str_replace('/blogs/stories/', '/stories/', $value);
+
         return str_replace('/blogs/blogs/', '/blogs/', $cleaned);
     }
 }

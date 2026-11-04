@@ -10,6 +10,9 @@ git pull origin main
 npm ci
 npm run build
 
+# नई migrations चलाएं (सिर्फ pending वाली, कोई डेटा delete नहीं होता)
+/usr/local/bin/ea-php82 artisan migrate --force
+
 # ea-php82 का उपयोग करके Laravel सेटिंग्स रन करें
 /usr/local/bin/ea-php82 artisan config:cache
 /usr/local/bin/ea-php82 artisan route:cache

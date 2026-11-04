@@ -1,6 +1,6 @@
 @extends('frontend.layout.main')
 @section('title', $post->meta_title ?? $post->title)
-@section('meta_description', $post->meta_description ?? $post->excerpt)
+@section('meta_description', $post->meta_description ?? "-")
 @section('meta_keywords',
     $post->meta_keywords ??
     ($post->category->name ?? 'preschool') .
@@ -8,6 +8,15 @@
     Makoons')
 @section('canonical_url', $post->canonical_url ? rtrim($post->canonical_url, '/') : route('blog.show', $post->slug))
 @section('body_class', 'detail-page')
+@section('schemas')
+    @if(!empty($post->excerpt))
+        <script type="application/ld+json">
+            {!! $post->excerpt !!}
+        </script>
+    @endif
+@endsection                   
+
+
 
 @section('content')
     @if (isset($isPreview) && $isPreview)
@@ -32,7 +41,7 @@
                         @endif
                     </nav>
                 </div>
-                <h1>{{ $post->title }}</h1>
+                <h1 style="font-size:40px">{{ $post->title }}</h1>
 
 
                 <div class="article-topline">
@@ -182,6 +191,12 @@
                             </a>
                         @endforeach
                     </div>
+                    
+                     <div>
+                         <a href="https://makoons.com/play-school-franchise" style="border:none">
+                    <img src="https://makoons.com/assets/images/add-image.jpeg" width="500">
+                    </a>
+                   </div>
                 </aside>
 
                 <article class="article-content clean-article" data-article-content>
@@ -193,12 +208,7 @@
                         </div>
                     @endif
 
-                    @if ($post->excerpt && !str_contains($post->content, $post->excerpt))
-                        <p class="lead-paragraph">
-                            {{ $post->excerpt }}
-                        </p>
-                    @endif
-
+              
                     <!-- Dynamic Table of Contents (TOC) -->
                     <div class="toc-container" id="toc-container" style="display: none;">
                         <div class="toc-card">
@@ -278,7 +288,10 @@
                         </article>
                     @endforeach
                 </div>
+                
+               
             </div>
+            
         </section>
     </main>
 @endsection

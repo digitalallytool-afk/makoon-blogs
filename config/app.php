@@ -69,6 +69,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Content Scheduling Timezone
+    |--------------------------------------------------------------------------
+    |
+    | Timezone in which editors enter and see scheduled publish times.
+    | Times are stored in UTC and converted to this timezone for display.
+    |
+    */
+
+    'schedule_timezone' => env('SCHEDULE_TIMEZONE', 'Asia/Kolkata'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |

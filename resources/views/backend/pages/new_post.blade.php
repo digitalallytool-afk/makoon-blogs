@@ -79,10 +79,10 @@
 
                                 <!-- Excerpt -->
                                 <div class="mb-0">
-                                    <label for="post-excerpt" class="form-label font-weight-bold text-secondary font-12 text-uppercase">Excerpt</label>
+                                    <label for="post-excerpt" class="form-label font-weight-bold text-secondary font-12 text-uppercase">Schemas</label>
                                     <textarea class="form-control border-0 bg-light" id="post-excerpt" name="excerpt" rows="3"
-                                              placeholder="Write a brief article summary...">{{ old('excerpt') }}</textarea>
-                                    <small class="text-muted mt-1 d-block font-11">Optional summary shown in listings and previews.</small>
+                                              placeholder="Add Schemas">{{ old('excerpt') }}</textarea>
+                                    <small class="text-muted mt-1 d-block font-11">Add Schemas</small>
                                 </div>
                             </div>
                         </div>
@@ -224,6 +224,15 @@
                                     <i class="bx bx-info-circle text-secondary fs-5"></i>
                                     <span class="text-secondary">Status: </span>
                                     <span class="font-weight-bold text-dark" id="status-label">Published</span>
+                                </div>
+                                <!-- Schedule (India time) -->
+                                <div class="mb-3">
+                                    <label class="form-label font-weight-bold text-dark font-13" for="published-at">Schedule (IST)</label>
+                                    <input type="datetime-local" class="form-control font-13 @error('published_at') is-invalid @enderror" id="published-at" name="published_at" value="{{ old('published_at') }}">
+                                    @error('published_at')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                    <small class="text-muted d-block font-11 mt-1">Leave empty to publish immediately. Pick a future date and time (India time), then click the button. It goes live automatically.</small>
                                 </div>
                                 <!-- Selected Blog Option -->
                                 <div class="form-check form-switch mb-3" style="padding-left: 2.5em;">
@@ -484,6 +493,23 @@
                 document.getElementById('featured-image-preview').src = '';
                 document.getElementById('featured-image-preview-container').classList.add('d-none');
             }
+
+            // Switch the publish button to "Schedule" while a date is chosen
+            (function () {
+                const scheduleInput = document.getElementById('published-at');
+                const publishButton = document.getElementById('btn-publish');
+                if (!scheduleInput || !publishButton) {
+                    return;
+                }
+                const defaultLabel = publishButton.innerHTML;
+                const syncPublishButton = function () {
+                    publishButton.innerHTML = scheduleInput.value
+                        ? '<i class="bx bx-time-five me-1"></i>Schedule'
+                        : defaultLabel;
+                };
+                scheduleInput.addEventListener('input', syncPublishButton);
+                syncPublishButton();
+            })();
 
             // Set hidden status field and update the label before form submits
             function setStatus(value) {

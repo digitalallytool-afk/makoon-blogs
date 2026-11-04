@@ -93,7 +93,12 @@
                                 <div class="col-6 col-md-3">
                                     <span class="d-block font-11 text-uppercase text-muted">Status</span>
                                     <div class="mt-1">
-                                        @if($story->status === 'published')
+                                        @if($story->isScheduled())
+                                                <span class="badge bg-light-info text-info px-3 py-1 radius-30" title="{{ $story->scheduledAtForDisplay() }}">
+                                                    <i class="bx bx-time-five me-1"></i>Scheduled
+                                                </span>
+                                                <small class="d-block text-muted font-11 mt-1">{{ $story->scheduledAtForDisplay() }}</small>
+                                            @elseif($story->status === 'published')
                                             <span class="badge bg-light-success text-success px-3 py-1 radius-30">
                                                 <i class="bx bx-check-circle me-1"></i>Published
                                             </span>

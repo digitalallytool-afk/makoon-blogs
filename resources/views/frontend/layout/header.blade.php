@@ -28,6 +28,10 @@
     @else
     <link rel="canonical" href="{{ url()->current() }}">
     @endif
+    @yield('schemas')
+
+    
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9Oer+R5ULwNIA6yK2tQPDvK7O4p4jG5KV5Rh7L5Z4xJ" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ asset('frontend/css/styles.css') }}?v=1.2.0">

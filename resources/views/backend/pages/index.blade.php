@@ -118,7 +118,12 @@
                                                 <td><span class="badge bg-light-primary text-primary px-2 py-1 radius-30">{{ $post->category->name ?? 'Uncategorized' }}</span></td>
                                                 <td>{{ $post->created_at->format('M d, Y') }}</td>
                                                 <td>
-                                                    @if($post->status === 'published')
+                                                    @if($post->isScheduled())
+                                                <span class="badge bg-light-info text-info px-3 py-1 radius-30" title="{{ $post->scheduledAtForDisplay() }}">
+                                                    <i class="bx bx-time-five me-1"></i>Scheduled
+                                                </span>
+                                                <small class="d-block text-muted font-11 mt-1">{{ $post->scheduledAtForDisplay() }}</small>
+                                            @elseif($post->status === 'published')
                                                         <span class="badge bg-light-success text-success px-3 py-1 radius-30">Published</span>
                                                     @else
                                                         <span class="badge bg-light-warning text-warning px-3 py-1 radius-30">Draft</span>
@@ -170,7 +175,12 @@
                                                 <td><span class="badge bg-light-success text-success px-2 py-1 radius-30">{{ $story->storyCategory->name ?? 'Uncategorized' }}</span></td>
                                                 <td>{{ $story->created_at->format('M d, Y') }}</td>
                                                 <td>
-                                                    @if($story->status === 'published')
+                                                    @if($story->isScheduled())
+                                                <span class="badge bg-light-info text-info px-3 py-1 radius-30" title="{{ $story->scheduledAtForDisplay() }}">
+                                                    <i class="bx bx-time-five me-1"></i>Scheduled
+                                                </span>
+                                                <small class="d-block text-muted font-11 mt-1">{{ $story->scheduledAtForDisplay() }}</small>
+                                            @elseif($story->status === 'published')
                                                         <span class="badge bg-light-success text-success px-3 py-1 radius-30">Published</span>
                                                     @else
                                                         <span class="badge bg-light-warning text-warning px-3 py-1 radius-30">Draft</span>

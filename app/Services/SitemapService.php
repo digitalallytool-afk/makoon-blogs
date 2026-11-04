@@ -11,11 +11,25 @@ use Illuminate\Support\Facades\URL;
 class SitemapService
 {
     /**
+     * Absolute path of the sitemap storage directory, or of a file inside it.
+     */
+    public static function path(string $file = ''): string
+    {
+        $directory = storage_path('app/sitemaps');
+
+        return $file === '' ? $directory : $directory.'/'.$file;
+    }
+
+    /**
      * Regenerate all sitemaps and robots.txt.
      * Call this after any model is created, updated, deleted, or status-changed.
      */
     public function generate(): void
     {
+        if (! is_dir(self::path())) {
+            mkdir(self::path(), 0755, true);
+        }
+
         $this->generateSitemapIndex();
         $this->generateBlogsSitemap();
         $this->generateStoriesSitemap();
@@ -25,14 +39,13 @@ class SitemapService
     }
 
     /**
-     * Build and write public/sitemap.xml as a Sitemap Index.
+     * Build and write storage/app/sitemaps/sitemap.xml as a Sitemap Index.
      */
     private function generateSitemapIndex(): void
     {
         $baseUrl = rtrim(config('app.url'), '/');
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
-        $xml .= '<?xml-stylesheet type="text/xsl" href="'.$baseUrl.'/sitemap.xsl"?>'."\n";
         $xml .= '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
 
         $sitemaps = [
@@ -51,11 +64,11 @@ class SitemapService
 
         $xml .= '</sitemapindex>';
 
-        file_put_contents(public_path('sitemap.xml'), $xml);
+        file_put_contents(self::path('sitemap.xml'), $xml);
     }
 
     /**
-     * Build and write public/blogs-sitemap.xml.
+     * Build and write storage/app/sitemaps/blogs-sitemap.xml.
      */
     private function generateBlogsSitemap(): void
     {
@@ -67,7 +80,6 @@ class SitemapService
         $baseUrl = rtrim(config('app.url'), '/');
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
-        $xml .= '<?xml-stylesheet type="text/xsl" href="'.$baseUrl.'/sitemap.xsl"?>'."\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"'."\n";
         $xml .= '        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">'."\n";
 
@@ -98,11 +110,11 @@ class SitemapService
 
         $xml .= '</urlset>';
 
-        file_put_contents(public_path('blogs-sitemap.xml'), $xml);
+        file_put_contents(self::path('blogs-sitemap.xml'), $xml);
     }
 
     /**
-     * Build and write public/stories-sitemap.xml.
+     * Build and write storage/app/sitemaps/stories-sitemap.xml.
      */
     private function generateStoriesSitemap(): void
     {
@@ -115,7 +127,6 @@ class SitemapService
         $baseDomainUrl = str_replace('/blogs', '', $baseUrl);
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
-        $xml .= '<?xml-stylesheet type="text/xsl" href="'.$baseUrl.'/sitemap.xsl"?>'."\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
 
         // Stories Index Page
@@ -137,11 +148,11 @@ class SitemapService
 
         $xml .= '</urlset>';
 
-        file_put_contents(public_path('stories-sitemap.xml'), $xml);
+        file_put_contents(self::path('stories-sitemap.xml'), $xml);
     }
 
     /**
-     * Build and write public/printables-sitemap.xml.
+     * Build and write storage/app/sitemaps/printables-sitemap.xml.
      * Only the /printables index page is included — individual printable URLs
      * are admin-protected routes and must not be indexed by search engines.
      */
@@ -151,7 +162,6 @@ class SitemapService
         $baseDomainUrl = str_replace('/blogs', '', $baseUrl);
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
-        $xml .= '<?xml-stylesheet type="text/xsl" href="'.$baseUrl.'/sitemap.xsl"?>'."\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
 
         // Printables Index Page only — individual /printables/{slug} are admin routes
@@ -159,11 +169,11 @@ class SitemapService
 
         $xml .= '</urlset>';
 
-        file_put_contents(public_path('printables-sitemap.xml'), $xml);
+        file_put_contents(self::path('printables-sitemap.xml'), $xml);
     }
 
     /**
-     * Build and write public/sessions-sitemap.xml.
+     * Build and write storage/app/sitemaps/sessions-sitemap.xml.
      */
     private function generateSessionsSitemap(): void
     {
@@ -175,7 +185,6 @@ class SitemapService
         $baseDomainUrl = str_replace('/blogs', '', $baseUrl);
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
-        $xml .= '<?xml-stylesheet type="text/xsl" href="'.$baseUrl.'/sitemap.xsl"?>'."\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
 
         // Parenting Sessions Index Page
@@ -193,7 +202,7 @@ class SitemapService
 
         $xml .= '</urlset>';
 
-        file_put_contents(public_path('sessions-sitemap.xml'), $xml);
+        file_put_contents(self::path('sessions-sitemap.xml'), $xml);
     }
 
     /**
