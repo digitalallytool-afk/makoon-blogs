@@ -16,6 +16,11 @@ class RewriteStoriesUrl
     {
         $response = $next($request);
 
+        // Sitemap links are already exact; rewriting them would drop the /blogs prefix.
+        if ($request->routeIs('sitemap.show')) {
+            return $response;
+        }
+
         if ($response instanceof \Illuminate\Http\Response &&
             str_contains($response->headers->get('Content-Type') ?? '', 'text/html')) {
 
